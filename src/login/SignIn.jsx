@@ -1,0 +1,159 @@
+import { Link, useHistory } from 'react-router-dom';
+import './login.css';
+import '../../node_modules/bootstrap/dist/css/bootstrap.min.css'
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import { useFormik } from 'formik';
+import axios from 'axios';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import serverURL from '../serverURL';
+import Modal from "react-bootstrap/Modal";
+const SignIn = (props) => {
+    const history = useHistory();
+    const [isLogin, setIsLogin] = useState(false);
+    const [listOfGroups, setListOfGroups] = useState(null);
+    const [group, setGroup] = useState();
+    const [events, setEvents] = useState([]);
+    const [show ,setShow] =useState(false);
+    const list = useRef();
+    const handleShow = () => { setShow(true)}
+    const handleClose = () => { setShow(false)}
+    const formik = useFormik({
+        enableReinitialize: true,
+        initialValues: {
+            email: '',
+            password: '',
+            group: '',
+            emailValid: ''
+        },
+        onSubmit: async (values) => {
+            const email = values.email
+            if (email === "") {
+                formik.values.emailValid = "please type email";
+            }
+            else {
+
+                formik.values.emailValid = "";
+                const password = values.password;
+                //get the group for this user
+                const result = await axios.get("" + serverURL + "api/User", {
+                    params: {
+                        email: email,
+                        password: password
+                    }
+                });
+
+
+                console.log(result);
+                // if (result.data.err) {
+                //     history.push({ pathname: '/error', state: { status: result.data.status } });
+                //     return;
+                // }
+
+                if (result.data) {
+                    let user = result.data;
+                    if (user.email && user.password) {
+                        //paste hear
+                        user = JSON.stringify(user);
+                        ////save the user in the storage
+                        //go to choose group
+                        const groups = await axios.get("" + serverURL + "GetByManager", {
+                            params: {
+                                id: result.data.id,
+                            }
+                        });
+                        setListOfGroups(groups.data);
+                        setIsLogin(true);
+                    }
+                    if (user.email && !user.password) {
+                        user.password = password;
+                        history.push({ pathname: "/signup", state: user });
+
+                    }
+                }
+                else alert("your email or password is incorrect");
+            }
+        },
+    });
+
+    const submitAllValue = async () => {
+        const formikGroup = formik.values.group;
+        if (formikGroup === "create new group" || !listOfGroups) {
+            history.push({ pathname: "/createGroup", state: { email: formik.values.email } });
+        }
+        else {
+            const index = formikGroup ? listOfGroups.findIndex(g => g.name === formikGroup) : 0;
+            const group = listOfGroups[index];
+            const result = await axios.get("" + serverURL + "api/Group", {
+                params: {
+                    id: group.id,
+                }
+            });
+            setGroup(result.data);
+            if (result.data.events) {
+                setEvents(JSON.parse(result.data.events));
+                history.push({ pathname: "/schedule", state: { group: result.data, events: JSON.parse(result.data.events) } });
+            }
+            else {
+                handleShow();
+            }
+            //history.push({pathname:"/group",state:{group:listOfGroups[index]}});
+        };
+    }
+    return (
+        <div className="auth-wrapper">
+            <div className="auth-inner">
+                <form onSubmit={formik.handleSubmit}>
+                    <button type="button" className="close" aria-label="Close" onClick={() => history.push("/")} >
+                        <span aria-hidden="true" >&times;</span>
+                    </button><br />
+                    <h3>Sign In</h3>
+                    <div className="form-group">
+                        <label>Email</label>
+                        <input type="email" id="email" name="email" className="form-control"
+                            onChange={formik.handleChange} value={formik.values.email} disabled={isLogin} />
+                        <span id="emailValid" className="validMassage">{formik.values.emailValid}</span>
+                    </div>
+                    <div className="form-group">
+                        <label>Password</label><Button variant="link" > (forget password)</Button>
+                        <input type="password" id="password" name="password" className="form-control"
+                            onChange={formik.handleChange} value={formik.values.password} disabled={isLogin} />
+                    </div>
+                    {!isLogin ? <><br /><div className="form-group">
+                        <Button type="submit" variant="outline-primary" block>Continue...</Button>
+                    </div></> : ""}
+                    {isLogin ?
+                        <><Form.Group >
+                            <Form.Label>select group</Form.Label>
+                            <Form.Control as="select" id="group" name="group" value={formik.values.group} onChange={formik.handleChange}>
+                                {listOfGroups.map((item, step) =>
+                                    <option key={step} title={"manager : " + item.mName + "(" + item.mEmail + ")"}>
+                                        {item.name} </option>
+                                )}
+                                <option key={listOfGroups ? listOfGroups.length : 0}>create new group</option>
+                            </Form.Control>
+                        </Form.Group><br /> <Button variant="primary" block onClick={() => submitAllValue()}>Submit</Button></> : ""}
+                </form>
+
+            </div><br />
+            <div className="auth-inner">
+                <h5>New in courseries - <Link to="/"> Create Account</Link></h5>
+            </div>
+            <Modal show={show} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Choose what do yo want to do with your group</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>you till dont declare the schedule to your group</Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={()=>history.push({pathname:"/editSchedule",state:{group:group}})}>
+                        Edit Schedule
+          </Button>
+                    <Button variant="primary" onClick={()=>history.push({pathname:"/addVolunteer",state:{group:group}})}>
+                        Add volunteers
+          </Button>
+                </Modal.Footer>
+            </Modal>
+        </div>
+    );
+}
+export default SignIn;
