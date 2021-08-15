@@ -2,7 +2,8 @@ import React from 'react'
 
 import Scheduler from './scheduler/Scheduler';
 import Calendar from './scheduler/calendar2';
-import SignIn from './login/SignIn'
+import SignIn from './login/SignIn';
+import SignUp from './login/signUp'
 import {
   Switch,
   Route,
@@ -22,6 +23,7 @@ const App = () => {
       <Link to="/signin">SignIn</Link>
       <Switch>
         <Route path="/signin" component={SignIn} />
+        <Route path="/signup" component={SignUp} />
         <Route path="/createGroup" component={CreateGroup} />
         <Route path="/group" component={Group} />
         <Route path="/addVolunteer" component={AddVolunteer} />

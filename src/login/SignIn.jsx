@@ -77,8 +77,9 @@ const SignIn = (props) => {
     });
 
     const submitAllValue = async () => {
+        debugger;
         const formikGroup = formik.values.group;
-        if (formikGroup === "create new group" || !listOfGroups) {
+        if (formikGroup === "create new group" || !listOfGroups.length) {
             history.push({ pathname: "/createGroup", state: { email: formik.values.email } });
         }
         else {
@@ -137,7 +138,7 @@ const SignIn = (props) => {
 
             </div><br />
             <div className="auth-inner">
-                <h5>New in courseries - <Link to="/"> Create Account</Link></h5>
+                <h5>You are new volunteer - <Link to="/signup"> Create Account</Link></h5>
             </div>
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>

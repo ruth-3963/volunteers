@@ -33,7 +33,8 @@ const EditScheduler = () => {
             group: group
         });
         console.log(result);
-        setGroup({ ...group, ['events']: events });
+        debugger;
+        setGroup({ ...group, ['events']:JSON.stringify(events) });
 
         //calendar.current.eventsData = [];
         calendar.current.eventsData.forEach(event => {

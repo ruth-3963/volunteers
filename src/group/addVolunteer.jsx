@@ -68,7 +68,7 @@ const AddVolunteer = () => {
                 <Button type="submit" block>Add all</Button>
                 <Button block onClick={() => EditSchedule()}>Edit schedule</Button>
                 <Button block disabled={!group.events}
-                    onClick={history.push({ pathname: "/schedule", state: { group: group, events: JSON.parse(group.events) } })}>schedule</Button>
+                    onClick={() => {history.push({ pathname: "/schedule", state: { group: group, events: JSON.parse(group.events) } })}}>schedule</Button>
             </form></div></div>
     );
 }
