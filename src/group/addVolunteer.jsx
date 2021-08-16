@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Button from 'react-bootstrap/esm/Button';
 import Form from 'react-bootstrap/Form';
 import serverURL from '../serverURL';
@@ -16,27 +16,19 @@ const AddVolunteer = () => {
     const location = useLocation();
     const history = useHistory();
     const formRef = useRef();
-    const [group, setGroup] = useState(location.state.group);
-    const setStateOfVolunteers = (e, i) => {
-        if (e.target.id === "email") {
-
-        }
-        else {
-
-        }
-    }
-    const EditSchedule = () => {
-        history.push({ pathname: "/schedule", state: { group: group, edit: true } });
-    }
+    const [group, setGroup] = useState();
+    useEffect(() => {
+        if (location.state && location.state.group)
+            setGroup(location.state.group)
+    }, []);
     const handleSubmit = (e) => {
         e.preventDefault();
         const arr = Array.prototype.slice.call(e.target.children[0].children);
         const volunteers = [];
         arr.map((chaild, index) => {
-            if (index % 2 === 0 && chaild.children[1].value.length > 0) {
-                const name = chaild.children[0].value;
-                const email = chaild.children[1].value;
-                volunteers.push({ name: name, email: email });
+            if (chaild.value) {
+                const email = chaild.value;
+                volunteers.push({ email: email });
             }
         });
         axios.post("" + serverURL + "AddUsers", {
@@ -48,28 +40,14 @@ const AddVolunteer = () => {
     return (<div className="auth-wrapper">
         <div className="auth-inner">
             <h3>Add Volunteers</h3><br />
-            <form ref={formRef} onSubmit={(e) => handleSubmit(e)}>
-                <ul>
-                    {(() => {
-                        const inputs = [];
-                        for (let i = 0; i < 5; i++) {
-                            volunteers.push({ name: "", email: "" });
-                            inputs.push(<><li key={i} className="container" style={container}>
-                                <input type="text" placeholder="name" id="name" />
-                                <input type="email" id="email" placeholder="email" />
-                                <label>send email</label><input type="checkbox" id="sendEmail"/>
-                            </li><br /></>);
-                        }
-                        return inputs;
-                    })()}
-                </ul>
-
-
-                <Button type="submit" block>Add all</Button>
-                <Button block onClick={() => EditSchedule()}>Edit schedule</Button>
-                <Button block disabled={!group.events}
-                    onClick={() => {history.push({ pathname: "/schedule", state: { group: group, events: JSON.parse(group.events) } })}}>schedule</Button>
-            </form></div></div>
+            <Form ref={formRef} onSubmit={(e) => handleSubmit(e)}>
+                <div className="mb-3">
+                    {[...Array(8)].map((e, i) => <Form.Control type="email" placeholder="Enter email" />)}
+                </div>
+                <Button type="submit" block >Add all and send email</Button>
+            </Form>
+        </div>
+    </div>
     );
 }
 export default AddVolunteer;

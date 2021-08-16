@@ -149,7 +149,7 @@ const SignIn = (props) => {
                     <Button variant="secondary" onClick={()=>history.push({pathname:"/editSchedule",state:{group:group}})}>
                         Edit Schedule
           </Button>
-                    <Button variant="primary" onClick={()=>history.push({pathname:"/addVolunteer",state:{group:group}})}>
+                    <Button variant="primary" onClick={()=>{debugger;history.push({pathname:"/addVolunteer",state:{group:group}})}}>
                         Add volunteers
           </Button>
                 </Modal.Footer>
