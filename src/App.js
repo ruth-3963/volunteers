@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { createContext, useState, useEffect }  from 'react'
 
 import Scheduler from './scheduler/Scheduler';
 import Calendar from './scheduler/calendar2';
@@ -16,10 +16,17 @@ import Demo from './scheduler/calendarDevExpress';
 import EditScheduler from "./scheduler/editScheduler";
 
 //import WeekCalender from './scheduler/weekCalender';
+const userContext = React.createContext({user: {}});
+const groupContext = createContext();
 const App = () => {
-
+  const [user ,setUser] = useState({});
+  useEffect(() => {
+    const userLocalStorage = localStorage.getItem("user");
+    if(userLocalStorage)
+      setUser(userLocalStorage)
+  },[]);
   return (
-    <>
+    <userContext.Provider value={user}>
       <Link to="/signin">SignIn</Link>
       <Switch>
         <Route path="/signin" component={SignIn} />
@@ -30,7 +37,7 @@ const App = () => {
         <Route path="/schedule" component={Calendar}/>
         <Route path="/editSchedule" component={EditScheduler}/>
       </Switch>
-    </>
+    </userContext.Provider>
   )
 
 }

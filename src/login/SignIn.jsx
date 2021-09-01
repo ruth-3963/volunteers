@@ -1,4 +1,4 @@
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import './login.css';
 import '../../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import Button from 'react-bootstrap/Button';
@@ -8,16 +8,19 @@ import axios from 'axios';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import serverURL from '../serverURL';
 import Modal from "react-bootstrap/Modal";
+import { useLocationState } from 'react-router-use-location-state';
 const SignIn = (props) => {
     const history = useHistory();
+    const location = useLocation();
     const [isLogin, setIsLogin] = useState(false);
     const [listOfGroups, setListOfGroups] = useState(null);
     const [group, setGroup] = useState();
     const [events, setEvents] = useState([]);
-    const [show ,setShow] =useState(false);
+    const [show, setShow] = useState(false);
     const list = useRef();
-    const handleShow = () => { setShow(true)}
-    const handleClose = () => { setShow(false)}
+    const handleShow = () => { setShow(true) }
+    const handleClose = () => { setShow(false) }
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -27,36 +30,24 @@ const SignIn = (props) => {
             emailValid: ''
         },
         onSubmit: async (values) => {
+            debugger;
             const email = values.email
             if (email === "") {
                 formik.values.emailValid = "please type email";
             }
             else {
-
                 formik.values.emailValid = "";
                 const password = values.password;
-                //get the group for this user
                 const result = await axios.get("" + serverURL + "api/User", {
                     params: {
                         email: email,
                         password: password
                     }
                 });
-
-
-                console.log(result);
-                // if (result.data.err) {
-                //     history.push({ pathname: '/error', state: { status: result.data.status } });
-                //     return;
-                // }
-
                 if (result.data) {
                     let user = result.data;
                     if (user.email && user.password) {
-                        //paste hear
-                        user = JSON.stringify(user);
-                        ////save the user in the storage
-                        //go to choose group
+                        localStorage.setItem(user, user);
                         const groups = await axios.get("" + serverURL + "GetByManager", {
                             params: {
                                 id: result.data.id,
@@ -68,14 +59,25 @@ const SignIn = (props) => {
                     if (user.email && !user.password) {
                         user.password = password;
                         history.push({ pathname: "/signup", state: user });
-
                     }
                 }
                 else alert("your email or password is incorrect");
             }
         },
     });
-
+    useEffect(async() => {
+        if (location && location.state && location.state.from && location.state.from.pathname=== "/signup")
+        {
+            const groups = await axios.get("" + serverURL + "GetByManager", {
+                params: {
+                    id: location.state.user.id,
+                }
+            });
+            setListOfGroups(groups.data);
+            setIsLogin(true);
+        }
+            
+    }, []);
     const submitAllValue = async () => {
         debugger;
         const formikGroup = formik.values.group;
@@ -104,7 +106,7 @@ const SignIn = (props) => {
     return (
         <div className="auth-wrapper">
             <div className="auth-inner">
-                <form onSubmit={formik.handleSubmit}>
+                <form onSubmit={formik.handleSubmit} >
                     <button type="button" className="close" aria-label="Close" onClick={() => history.push("/")} >
                         <span aria-hidden="true" >&times;</span>
                     </button><br />
@@ -112,13 +114,13 @@ const SignIn = (props) => {
                     <div className="form-group">
                         <label>Email</label>
                         <input type="email" id="email" name="email" className="form-control"
-                            onChange={formik.handleChange} value={formik.values.email} disabled={isLogin} />
+                           onChange={formik.handleChange} value={formik.values.email} disabled={isLogin} />
                         <span id="emailValid" className="validMassage">{formik.values.emailValid}</span>
                     </div>
                     <div className="form-group">
                         <label>Password</label><Button variant="link" > (forget password)</Button>
                         <input type="password" id="password" name="password" className="form-control"
-                            onChange={formik.handleChange} value={formik.values.password} disabled={isLogin} />
+                          onChange={formik.handleChange} value={formik.values.password} disabled={isLogin} />
                     </div>
                     {!isLogin ? <><br /><div className="form-group">
                         <Button type="submit" variant="outline-primary" block>Continue...</Button>
@@ -138,7 +140,7 @@ const SignIn = (props) => {
 
             </div><br />
             <div className="auth-inner">
-                <h5>You are new volunteer - <Link to="/signup"> Create Account</Link></h5>
+                <h6>You are new volunteer - <Link to="/signup"> Create Account</Link></h6>
             </div>
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
@@ -146,12 +148,12 @@ const SignIn = (props) => {
                 </Modal.Header>
                 <Modal.Body>you till dont declare the schedule to your group</Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={()=>history.push({pathname:"/editSchedule",state:{group:group}})}>
+                    <Button variant="secondary" onClick={() => history.push({ pathname: "/editSchedule", state: { group: group } })}>
                         Edit Schedule
-          </Button>
-                    <Button variant="primary" onClick={()=>{debugger;history.push({pathname:"/addVolunteer",state:{group:group}})}}>
+                    </Button>
+                    <Button variant="primary" onClick={() => { debugger; history.push({ pathname: "/addVolunteer", state: { group: group } }) }}>
                         Add volunteers
-          </Button>
+                    </Button>
                 </Modal.Footer>
             </Modal>
         </div>

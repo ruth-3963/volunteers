@@ -4,7 +4,13 @@ import Button from 'react-bootstrap/esm/Button';
 import Form from 'react-bootstrap/Form';
 import serverURL from '../serverURL';
 import { useLocation, useHistory } from 'react-router-dom';
-
+import '../../node_modules/bootstrap/dist/css/bootstrap.min.css'
+import { BsFillPlusCircleFill } from "react-icons/bs";
+import AddCircle from '@material-ui/icons/AddCircle';
+import AddIcon from '@material-ui/icons/Add';
+import Fab from '@material-ui/core/Fab';
+import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
 const container = {
     display: "flex",
     flexDirection: "row",
@@ -12,7 +18,7 @@ const container = {
 }
 const AddVolunteer = () => {
 
-    const [volunteers, setVolunteers] = useState([]);
+    const [volunteers, setVolunteers] = useState(new Array(10).fill(<Form.Control type="email" placeholder="Enter email" />));
     const location = useLocation();
     const history = useHistory();
     const formRef = useRef();
@@ -39,10 +45,17 @@ const AddVolunteer = () => {
     }
     return (<div className="auth-wrapper">
         <div className="auth-inner">
-            <h3>Add Volunteers</h3><br />
+            <div>
+                <h3 style={{ display: "inline-block" }}>Add Volunteers</h3>
+                <Tooltip title="Add" aria-label="add">
+                  
+                        <AddCircle style={{float:"right"}}/>
+                    
+                </Tooltip></div>
             <Form ref={formRef} onSubmit={(e) => handleSubmit(e)}>
+
                 <div className="mb-3">
-                    {[...Array(8)].map((e, i) => <Form.Control type="email" placeholder="Enter email" />)}
+                    {volunteers.map((element, index) => element)}
                 </div>
                 <Button type="submit" block >Add all and send email</Button>
             </Form>
