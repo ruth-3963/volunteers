@@ -19,7 +19,7 @@ const SignUp = () => {
     const formik = useFormik({
         initialValues: {
             name: '',
-            mail: '',
+            email: '',
             password: '',
             phone: '',
             confirm_password: '',
@@ -29,7 +29,7 @@ const SignUp = () => {
             if (matchPassword) {
                 const user = {};
                 user.name = values.name;
-                user.email = values.mail;
+                user.email = values.email;
                 user.password = values.password;
                 user.phone = values.phone;
                 const result = await axios.post("" + serverURL + "api/User", {
@@ -99,8 +99,8 @@ const SignUp = () => {
                     </div>
                     <div className="form-group">
                         <label>Email</label>
-                        <input type="email" id="mail" name="mail" className="form-control"
-                            onChange={formik.handleChange} value={formik.values.mail} />
+                        <input type="email" id="email" name="email" className="form-control"
+                            onChange={formik.handleChange} value={formik.values.email} />
                     </div>
 
                     <div className="form-group">
