@@ -1,18 +1,21 @@
 const scheduleData = [{
     Id: 2,
     Subject: 'Meeting',
-    StartTime: new Date(2018, 1, 15, 10, 0),
-    EndTime: new Date(2018, 1, 15, 12, 30),
+    StartTime: new Date(2021, 8, 2, 10, 0),
+    EndTime: new Date(2021, 8, 2, 12, 30),
     IsAllDay: false,
     Status: 'Completed',
-    Priority: 'High'
+    Priority: 'High',
+    OwnerId: 1
 },{
     Id: 3,
     Subject: 'Meeting 123',
-    StartTime: new Date(2018, 1, 16, 10, 0),
-    EndTime: new Date(2018, 1, 16, 12, 30),
+    StartTime: new Date(2021, 8, 1, 10, 0),
+    EndTime: new Date(2021, 8, 1, 12, 30),
     IsAllDay: false,
     Status: 'Completed',
-    Priority: 'High'
-}];
+    Priority: 'High',
+    OwnerId: 2
+}
+];
 export default scheduleData;

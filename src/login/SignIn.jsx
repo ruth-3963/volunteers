@@ -30,7 +30,6 @@ const SignIn = (props) => {
             emailValid: ''
         },
         onSubmit: async (values) => {
-            debugger;
             const email = values.email
             if (email === "") {
                 formik.values.emailValid = "please type email";
@@ -47,7 +46,7 @@ const SignIn = (props) => {
                 if (result.data) {
                     let user = result.data;
                     if (user.email && user.password) {
-                        localStorage.setItem(user, user);
+                        localStorage.setItem("user", JSON.stringify(user));
                         const groups = await axios.get("" + serverURL + "GetByManager", {
                             params: {
                                 id: result.data.id,
@@ -65,9 +64,8 @@ const SignIn = (props) => {
             }
         },
     });
-    useEffect(async() => {
-        if (location && location.state && location.state.from && location.state.from.pathname=== "/signup")
-        {
+    useEffect(async () => {
+        if (location && location.state && location.state.from && location.state.from.pathname === "/signup") {
             const groups = await axios.get("" + serverURL + "GetByManager", {
                 params: {
                     id: location.state.user.id,
@@ -76,8 +74,9 @@ const SignIn = (props) => {
             setListOfGroups(groups.data);
             setIsLogin(true);
         }
-            
+
     }, []);
+
     const submitAllValue = async () => {
         debugger;
         const formikGroup = formik.values.group;
@@ -93,6 +92,8 @@ const SignIn = (props) => {
                 }
             });
             setGroup(result.data);
+            localStorage.setItem("group", JSON.stringify(result.data));
+            history.push({ pathname: "editSchedule/" + result.data.id });
             if (result.data.events) {
                 setEvents(JSON.parse(result.data.events));
                 history.push({ pathname: "/schedule", state: { group: result.data, events: JSON.parse(result.data.events) } });
@@ -114,17 +115,18 @@ const SignIn = (props) => {
                     <div className="form-group">
                         <label>Email</label>
                         <input type="email" id="email" name="email" className="form-control"
-                           onChange={formik.handleChange} value={formik.values.email} disabled={isLogin} />
+                            onChange={formik.handleChange} value={formik.values.email} disabled={isLogin} />
                         <span id="emailValid" className="validMassage">{formik.values.emailValid}</span>
                     </div>
                     <div className="form-group">
                         <label>Password</label><Button variant="link" > (forget password)</Button>
                         <input type="password" id="password" name="password" className="form-control"
-                          onChange={formik.handleChange} value={formik.values.password} disabled={isLogin} />
+                            onChange={formik.handleChange} value={formik.values.password} disabled={isLogin} />
                     </div>
                     {!isLogin ? <><br /><div className="form-group">
                         <Button type="submit" variant="outline-primary" block>Continue...</Button>
-                    </div></> : ""}
+                    </div></> : ""
+                    }
                     {isLogin ?
                         <><Form.Group >
                             <Form.Label>select group</Form.Label>
@@ -135,8 +137,7 @@ const SignIn = (props) => {
                                 )}
                                 <option key={listOfGroups ? listOfGroups.length : 0}>create new group</option>
                             </Form.Control>
-                        </Form.Group><br /> <Button variant="primary" block onClick={() => submitAllValue()}>Submit</Button></> : ""}
-                </form>
+                        </Form.Group><br /> <Button variant="primary" block onClick={() => submitAllValue()}>Submit</Button></> : ""}                </form>
 
             </div><br />
             <div className="auth-inner">

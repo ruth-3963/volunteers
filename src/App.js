@@ -1,7 +1,7 @@
-import React, { createContext, useState, useEffect }  from 'react'
+import React, { createContext, useState, useEffect } from 'react'
 
 import Scheduler from './scheduler/Scheduler';
-import Calendar from './scheduler/calendar2';
+import Calendar from './scheduler/goodCalendar';
 import SignIn from './login/SignIn';
 import SignUp from './login/signUp'
 import {
@@ -12,32 +12,49 @@ import {
 import CreateGroup from './group/create_group';
 import Group from './group/group';
 import AddVolunteer from './group/addVolunteer';
-import Demo from './scheduler/calendarDevExpress';
-import EditScheduler from "./scheduler/editScheduler";
-
+import EditScheduler2 from './scheduler/editScheduer2';
+import ChooseEvents from './scheduler/chooseEvents';
+import Button from 'react-bootstrap/esm/Button';
+import { SignalWifiOffOutlined } from '@material-ui/icons';
+import { useHistory, useLocation } from "react-router-dom";
+import CSS_COLOR_NAMES from './colors';
+import { Dropdown } from 'react-bootstrap';
 //import WeekCalender from './scheduler/weekCalender';
-const userContext = React.createContext({user: {}});
+export const UserContext = React.createContext({ user: {} });
 const groupContext = createContext();
 const App = () => {
-  const [user ,setUser] = useState({});
+  const [user, setUser] = useState({});
+  const [isLogin, setIsLogin] = useState()
+  const history = useHistory();
   useEffect(() => {
     const userLocalStorage = localStorage.getItem("user");
-    if(userLocalStorage)
-      setUser(userLocalStorage)
-  },[]);
+    if(JSON.parse(userLocalStorage))
+      setIsLogin(true)
+  }, [isLogin]);
+  const signOut = () => {
+    localStorage.setItem("user", null);
+    localStorage.setItem("group", null);
+    localStorage.setItem("userToGroup",null);
+    setIsLogin(false);
+    history.push("/");
+  }
   return (
-    <userContext.Provider value={user}>
-      <Link to="/signin">SignIn</Link>
+    <UserContext.Provider value={{user,setUser}}>
+      {
+        isLogin ? <Button variant="link" onClick={(e) => signOut()}>Sign out</Button> :
+          <Link to="/signin">SignIn</Link>
+      }
       <Switch>
+        <Route exact path="/" component={Calendar} />
         <Route path="/signin" component={SignIn} />
         <Route path="/signup" component={SignUp} />
         <Route path="/createGroup" component={CreateGroup} />
         <Route path="/group" component={Group} />
         <Route path="/addVolunteer" component={AddVolunteer} />
-        <Route path="/schedule" component={Calendar}/>
-        <Route path="/editSchedule" component={EditScheduler}/>
+        <Route path="/chooseEvents/:id" component={ChooseEvents} />
+        <Route path="/editSchedule/:id" component={EditScheduler2} />
       </Switch>
-    </userContext.Provider>
+    </UserContext.Provider>
   )
 
 }

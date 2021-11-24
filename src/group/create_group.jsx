@@ -9,6 +9,8 @@ const CreateGroup = () => {
     const location = useLocation();
     const [isCreate, setIsCreate] = useState(false);
     const [group ,setGroup] = useState(null);
+    const [localUser , setLocalUser] = useState(JSON.parse(localStorage.getItem("user")));
+    const [localGroup , setLocalGroup] = useState(JSON.parse(localStorage.getItem("group")))
     const history = useHistory();
     const formik = useFormik({
         initialValues: {
@@ -17,13 +19,15 @@ const CreateGroup = () => {
         },
         onSubmit:async(values) => {
             const result = await axios.post("" + serverURL + "api/Group", {
-                email: location.state.email,
+                id_manager: localUser.id,
                 name: values.name,
                 description: values.description
             })
             if (result.data) {
                 setIsCreate(true);
                 setGroup(result.data);
+                setLocalGroup(result.data);
+                localStorage.setItem("group", JSON.stringify(result.data));
             }
             else {
                 alert("we dont succed to create group maybe yo have another group with the same name?");
@@ -31,7 +35,6 @@ const CreateGroup = () => {
 
         },
     });
-    //hear i need have the mail of manager
     return (<div className="auth-wrapper">
         <div className="auth-inner">
         <h3>Create group</h3>
@@ -52,7 +55,7 @@ const CreateGroup = () => {
         <Button variant="outline-primary" block hidden={!isCreate}
          onClick={()=>history.push({pathname:"/addVolunteer",state:{group:group}})}>
             add volunteers to your group</Button>
-        <Button variant="outline-primary" block hidden={!isCreate} onClick={()=>history.push({pathname:"/editSchedule",state:{group:group}})}>
+        <Button variant="outline-primary" block hidden={!isCreate} onClick={()=>history.push({pathname:"/editSchedule/" + localGroup.id + "",state:{group:group}})}>
             edit schedule to your group</Button>
     </div></div >
     )

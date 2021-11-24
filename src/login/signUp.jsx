@@ -38,7 +38,7 @@ const SignUp = () => {
                     phone: user.phone,
                     email: user.email
                 });
-                debugger;
+                localStorage.setItem("user", JSON.stringify(result.data));
                 const groups = await axios.get("" + serverURL + "GetByManager", {
                     params: {
                         id: result.data.id,
@@ -77,6 +77,7 @@ const SignUp = () => {
                 }
             });
             setGroup(result.data);
+            localStorage.setItem("group", JSON.stringify(result.data));
             if (result.data.events) {
                 setEvents(JSON.parse(result.data.events));
                 history.push({ pathname: "/schedule", state: { group: result.data, events: JSON.parse(result.data.events) } });
@@ -84,7 +85,6 @@ const SignUp = () => {
             else {
                 setShow(true);
             }
-            //history.push({pathname:"/group",state:{group:listOfGroups[index]}});
         };
     }
     return (
