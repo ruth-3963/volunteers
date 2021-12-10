@@ -24,19 +24,22 @@ export const UserContext = React.createContext({ user: {} });
 const groupContext = createContext();
 const App = () => {
   const [user, setUser] = useState({});
-  const [isLogin, setIsLogin] = useState()
+  const [isLogin, setIsLogin] = useState(false);
   const history = useHistory();
   useEffect(() => {
     const userLocalStorage = localStorage.getItem("user");
     if(JSON.parse(userLocalStorage))
       setIsLogin(true)
+    else {
+      history.push("/signin");
+    }
   }, [isLogin]);
   const signOut = () => {
     localStorage.setItem("user", null);
     localStorage.setItem("group", null);
     localStorage.setItem("userToGroup",null);
     setIsLogin(false);
-    history.push("/");
+    history.push("/signin");
   }
   return (
     <UserContext.Provider value={{user,setUser}}>
@@ -46,7 +49,7 @@ const App = () => {
       }
       <Switch>
         <Route exact path="/" component={Calendar} />
-        <Route path="/signin" component={SignIn} />
+        <Route path="/signin" render={({ match }) => <SignIn isLogin={isLogin} setIsLogin={(val) => setIsLogin(val)} />} />
         <Route path="/signup" component={SignUp} />
         <Route path="/createGroup" component={CreateGroup} />
         <Route path="/group" component={Group} />
