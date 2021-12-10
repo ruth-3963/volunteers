@@ -25,9 +25,9 @@ const CreateGroup = () => {
             })
             if (result.data) {
                 setIsCreate(true);
-                setGroup(result.data);
-                setLocalGroup(result.data);
-                localStorage.setItem("group", JSON.stringify(result.data));
+                setGroup(result.data.group);
+                localStorage.setItem("group", JSON.stringify(result.data.group));
+                localStorage.setItem("userToGroup" , JSON.stringify(result.data))
             }
             else {
                 alert("we dont succed to create group maybe yo have another group with the same name?");
@@ -55,7 +55,7 @@ const CreateGroup = () => {
         <Button variant="outline-primary" block hidden={!isCreate}
          onClick={()=>history.push({pathname:"/addVolunteer",state:{group:group}})}>
             add volunteers to your group</Button>
-        <Button variant="outline-primary" block hidden={!isCreate} onClick={()=>history.push({pathname:"/editSchedule/" + localGroup.id + "",state:{group:group}})}>
+        <Button variant="outline-primary" block hidden={!isCreate} onClick={()=>history.push({pathname:"/editSchedule/" + group.id + "",state:{group:group}})}>
             edit schedule to your group</Button>
     </div></div >
     )
