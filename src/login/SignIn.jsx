@@ -12,7 +12,6 @@ import { useLocationState } from 'react-router-use-location-state';
 const SignIn = (props) => {
     const history = useHistory();
     const location = useLocation();
-    const [isLogin, setIsLogin] = useState(false);
     const [listOfGroups, setListOfGroups] = useState(null);
     const [group, setGroup] = useState();
     const [events, setEvents] = useState([]);
@@ -53,7 +52,7 @@ const SignIn = (props) => {
                             }
                         });
                         setListOfGroups(groups.data);
-                        setIsLogin(true);
+                        props.setIsLogin(true);
                     }
                     if (user.email && !user.password) {
                         user.password = password;
@@ -72,13 +71,13 @@ const SignIn = (props) => {
                 }
             });
             setListOfGroups(groups.data);
-            setIsLogin(true);
+            props.setIsLogin(true);
         }
 
     }, []);
 
     const submitAllValue = async () => {
-        debugger;
+        const localUser = JSON.parse(localStorage.getItem("user"));
         const formikGroup = formik.values.group;
         if (formikGroup === "create new group" || !listOfGroups.length) {
             history.push({ pathname: "/createGroup", state: { email: formik.values.email } });
@@ -86,14 +85,21 @@ const SignIn = (props) => {
         else {
             const index = formikGroup ? listOfGroups.findIndex(g => g.name === formikGroup) : 0;
             const group = listOfGroups[index];
-            const result = await axios.get("" + serverURL + "api/Group", {
+            let result = await axios.get("" + serverURL + "api/Group", {
                 params: {
                     id: group.id,
                 }
             });
             setGroup(result.data);
             localStorage.setItem("group", JSON.stringify(result.data));
-            history.push({ pathname: "editSchedule/" + result.data.id });
+            result = await axios.get("" + serverURL + "api/UsersToGroups", {
+                params: {
+                    groupId: group.id,
+                    userId: localUser.id
+                }
+            });
+            localStorage.setItem("userToGroup", JSON.stringify(result.data));
+            history.push({ pathname: "editSchedule/" + group.id });
             if (result.data.events) {
                 setEvents(JSON.parse(result.data.events));
                 history.push({ pathname: "/schedule", state: { group: result.data, events: JSON.parse(result.data.events) } });
@@ -101,7 +107,6 @@ const SignIn = (props) => {
             else {
                 handleShow();
             }
-            //history.push({pathname:"/group",state:{group:listOfGroups[index]}});
         };
     }
     return (
@@ -115,19 +120,19 @@ const SignIn = (props) => {
                     <div className="form-group">
                         <label>Email</label>
                         <input type="email" id="email" name="email" className="form-control"
-                            onChange={formik.handleChange} value={formik.values.email} disabled={isLogin} />
+                            onChange={formik.handleChange} value={formik.values.email} disabled={props.isLogin} />
                         <span id="emailValid" className="validMassage">{formik.values.emailValid}</span>
                     </div>
                     <div className="form-group">
                         <label>Password</label><Button variant="link" > (forget password)</Button>
                         <input type="password" id="password" name="password" className="form-control"
-                            onChange={formik.handleChange} value={formik.values.password} disabled={isLogin} />
+                            onChange={formik.handleChange} value={formik.values.password} disabled={props.isLogin} />
                     </div>
-                    {!isLogin ? <><br /><div className="form-group">
+                    {!props.isLogin ? <><br /><div className="form-group">
                         <Button type="submit" variant="outline-primary" block>Continue...</Button>
                     </div></> : ""
                     }
-                    {isLogin ?
+                    {props.isLogin ?
                         <><Form.Group >
                             <Form.Label>select group</Form.Label>
                             <Form.Control as="select" id="group" name="group" value={formik.values.group} onChange={formik.handleChange}>
@@ -152,7 +157,7 @@ const SignIn = (props) => {
                     <Button variant="secondary" onClick={() => history.push({ pathname: "/editSchedule", state: { group: group } })}>
                         Edit Schedule
                     </Button>
-                    <Button variant="primary" onClick={() => { debugger; history.push({ pathname: "/addVolunteer", state: { group: group } }) }}>
+                    <Button variant="primary" onClick={() => { history.push({ pathname: "/addVolunteer", state: { group: group } }) }}>
                         Add volunteers
                     </Button>
                 </Modal.Footer>
