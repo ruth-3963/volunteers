@@ -11,6 +11,7 @@ import AddIcon from '@material-ui/icons/Add';
 import Fab from '@material-ui/core/Fab';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
+import { FormatAlignJustifyTwoTone } from '@material-ui/icons';
 const container = {
     display: "flex",
     flexDirection: "row",
@@ -23,10 +24,8 @@ const AddVolunteer = () => {
     const history = useHistory();
     const formRef = useRef();
     const [group, setGroup] = useState();
-    useEffect(() => {
-        if (location.state && location.state.group)
-            setGroup(location.state.group)
-    }, []);
+    const localGroup = JSON.parse(localStorage.getItem("group"));
+    const localUserToGroup = JSON.parse(localStorage.getItem("userToGroup"));
     const handleSubmit = (e) => {
         e.preventDefault();
         const arr = Array.prototype.slice.call(e.target.children[0].children);
@@ -34,12 +33,12 @@ const AddVolunteer = () => {
         arr.map((chaild, index) => {
             if (chaild.value) {
                 const email = chaild.value;
-                volunteers.push({ email: email });
+                volunteers.push(email);
             }
         });
         axios.post("" + serverURL + "AddUsers", {
-            list: volunteers,
-            group: group
+            emails: volunteers,
+            group: localGroup
         })
         formRef.current.reset();
     }
