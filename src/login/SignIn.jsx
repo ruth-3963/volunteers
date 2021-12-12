@@ -85,25 +85,30 @@ const SignIn = (props) => {
         else {
             const index = formikGroup ? listOfGroups.findIndex(g => g.name === formikGroup) : 0;
             const group = listOfGroups[index];
-            let result = await axios.get("" + serverURL + "api/Group", {
+            const resultGroup = await axios.get("" + serverURL + "api/Group", {
                 params: {
                     id: group.id,
                 }
             });
-            setGroup(result.data);
-            localStorage.setItem("group", JSON.stringify(result.data));
-            result = await axios.get("" + serverURL + "api/UsersToGroups", {
+            setGroup(resultGroup.data);
+            localStorage.setItem("group", JSON.stringify(resultGroup.data));
+            const resultUsersToGroups = await axios.get("" + serverURL + "api/UsersToGroups", {
                 params: {
                     groupId: group.id,
                     userId: localUser.id
                 }
             });
-            localStorage.setItem("userToGroup", JSON.stringify(result.data));
-            history.push({ pathname: "editSchedule/" + group.id });
-            if (result.data.events) {
-                setEvents(JSON.parse(result.data.events));
-                history.push({ pathname: "/schedule", state: { group: result.data, events: JSON.parse(result.data.events) } });
+            localStorage.setItem("userToGroup", JSON.stringify(resultUsersToGroups.data));
+            if(!resultUsersToGroups.data.color){
+                history.push({ pathname: "/chooseEvents/" + group.id });
+                return;
             }
+            if (resultGroup.data.events){
+               // history.push({ pathname: "/schedule/" + group.id , state: { group: resultGroup.data, events: JSON.parse(resultGroup.data.events) } });
+                history.push("/schedule/" + group.id);
+                return;
+            }
+           // history.push({ pathname: "editSchedule/" + group.id });
             else {
                 handleShow();
             }

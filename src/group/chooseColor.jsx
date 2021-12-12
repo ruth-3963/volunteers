@@ -11,7 +11,8 @@ const ChooseColor = (props) => {
     let localUser = JSON.parse(localStorage.getItem("user"));
     let localGroup = JSON.parse(localStorage.getItem("group"));
     const [value, setValue] = useState('');
-
+    const [allGroupUsersColor,setAllGroupUsersColor] = useState([]);
+    const handleClose = () =>{ props.setShow(false);};
     const submit = async () => {
         if (props.color) {
             const result = await axios.put("" + serverUrl + "api/usersToGroups", {
@@ -24,7 +25,8 @@ const ChooseColor = (props) => {
             }
         }
     }
-    return (<Modal show={props.showColorAlert} >
+
+    return (<Modal show={props.showColorAlert} onHide={handleClose}>
         <Modal.Header closeButton>
             <Modal.Title>choose color</Modal.Title>
         </Modal.Header>

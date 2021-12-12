@@ -18,7 +18,7 @@ const container = {
 }
 const AddVolunteer = () => {
 
-    const [volunteers, setVolunteers] = useState(new Array(10).fill(<Form.Control type="email" placeholder="Enter email" />));
+    const [volunteers, setVolunteers] = useState(new Array(10).fill(<Form.Control key="1" type="email" placeholder="Enter email" />));
     const location = useLocation();
     const history = useHistory();
     const formRef = useRef();

@@ -27,9 +27,12 @@ const App = () => {
   const [isLogin, setIsLogin] = useState(false);
   const history = useHistory();
   useEffect(() => {
-    const userLocalStorage = localStorage.getItem("user");
-    if(JSON.parse(userLocalStorage))
-      setIsLogin(true)
+    const localUser = JSON.parse(localStorage.getItem("user"));
+    const localGroup = JSON.parse(localStorage.getItem("group"));
+    if (localUser && localGroup) {
+      setIsLogin(true);
+      history.push("/schedule/" + localGroup.id);
+    }
     else {
       history.push("/signin");
     }
@@ -37,25 +40,24 @@ const App = () => {
   const signOut = () => {
     localStorage.setItem("user", null);
     localStorage.setItem("group", null);
-    localStorage.setItem("userToGroup",null);
+    localStorage.setItem("userToGroup", null);
     setIsLogin(false);
-    history.push("/signin");
   }
   return (
-    <UserContext.Provider value={{user,setUser}}>
+    <UserContext.Provider value={{ user, setUser }}>
       {
         isLogin ? <Button variant="link" onClick={(e) => signOut()}>Sign out</Button> :
           <Link to="/signin">SignIn</Link>
       }
       <Switch>
-        <Route exact path="/" component={Calendar} />
-        <Route path="/signin" render={({ match }) => <SignIn isLogin={isLogin} setIsLogin={(val) => setIsLogin(val)} />} />
-        <Route path="/signup" component={SignUp} />
-        <Route path="/createGroup" component={CreateGroup} />
-        <Route path="/group" component={Group} />
-        <Route path="/addVolunteer" component={AddVolunteer} />
-        <Route path="/chooseEvents/:id" component={ChooseEvents} />
-        <Route path="/editSchedule/:id" component={EditScheduler2} />
+        <Route exect path="/signin" render={({ match }) => <SignIn isLogin={isLogin} setIsLogin={(val) => setIsLogin(val)} />} />
+        <Route exect path="/signup" component={SignUp} />
+        <Route exect path="/createGroup" component={CreateGroup} />
+        <Route exect path="/group" component={Group} />
+        <Route exect path="/addVolunteer" component={AddVolunteer} />
+        <Route exect path="/chooseEvents/:id" component={ChooseEvents} />
+        <Route exect path="/editSchedule/:id" component={EditScheduler2} />
+        <Route exect path="/schedule/:id" component={Calendar} />
       </Switch>
     </UserContext.Provider>
   )
