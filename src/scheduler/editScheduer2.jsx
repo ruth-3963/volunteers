@@ -2,6 +2,7 @@ import React, { cloneElement, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 import axios from "axios";
 import serverURL from "../serverURL";
+import '../App.css'
 import './CalendarStyles.css'
 import Button from "react-bootstrap/Button";
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
@@ -15,7 +16,7 @@ import "../../node_modules/@syncfusion/ej2-navigations/styles/material.css";
 import "../../node_modules/@syncfusion/ej2-popups/styles/material.css";
 import "../../node_modules/@syncfusion/ej2-splitbuttons/styles/material.css";
 import "../../node_modules/@syncfusion/ej2-react-schedule/styles/material.css";
-import { ScheduleComponent, Day, Week, WorkWeek, Month, Inject, ViewsDirective, ViewDirective,ResourcesDirective, ResourceDirective } from '@syncfusion/ej2-react-schedule';
+import { ScheduleComponent, Day, Week, WorkWeek, Month, Inject, ViewsDirective, ViewDirective,ResourcesDirective, ResourceDirective, popupOpen } from '@syncfusion/ej2-react-schedule';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import { DateTimePickerComponent, TimePickerComponent } from '@syncfusion/ej2-react-calendars';
 import { useLocation, useHistory } from "react-router-dom"
@@ -46,7 +47,6 @@ const EditScheduler2 = () => {
         groupId: id,
       }
     });
-    debugger;
     //const newOwnerData = result.data.map(val => ({ Id: val.userId, OwnerColor: val.color , OwnerText: val.userName }))
     setOwnerData(result.data);
   }, []);
@@ -96,17 +96,12 @@ const EditScheduler2 = () => {
 
   }
   const onActionBegin = (args) => {
-    debugger;
     if (args.changedRecords) {
       setEvents(calendar.current.eventsData);
     }
-  }
-  const openPopup = (e) => {
-    if(e.type === "Editor")
-    { 
-      const filterData=ownerData.filter(owner=>e.data.eventToUserDTO.find(u=>u.userId===owner.Id))
-      setOwnerData2(filterData)
-    } 
+    if(args.requestType == "eventCreate"){
+      args.data[0].OwnerId = null;
+    }
   }
   const calcEvents = async() => {
     const result = await axios.get("" + serverURL + "calcEvents" , { params : { groupId : id}});
@@ -114,7 +109,12 @@ const EditScheduler2 = () => {
   }
   return (<div><ButtonComponent onClick={() => sendData()} variant="link" > save schedule</ButtonComponent>
   {localUserToGroup && localUserToGroup.is_manager ?<><ButtonComponent onClick = {() => calcEvents()}>calc events </ButtonComponent> <ButtonComponent onClick={() => history.push("/addVolunteer")} variant="link" > add volunteers </ButtonComponent></>:null}
-    <ScheduleComponent ref={calendar} actionBegin={(args) => onActionBegin(args)} actionComplete={(args) => onActionComplete(args)} width='100%' height='550px' eventSettings={{ dataSource: events }} >
+    <ScheduleComponent ref={calendar} 
+    actionBegin={(args) => onActionBegin(args)} 
+    actionComplete={(args) => onActionComplete(args)} 
+    width='100%' height='550px' 
+    eventSettings={{ dataSource: events }}
+    popupOpen = {(args) => openPopup(args)} >
       <ResourcesDirective>
         <ResourceDirective field='OwnerId' title='Owner' name='Owners' dataSource={ownerData} textField="OwnerText" idField='Id' colorField='OwnerColor'>
         </ResourceDirective>
