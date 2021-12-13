@@ -12,7 +12,7 @@ import { useLocationState } from 'react-router-use-location-state';
 const SignIn = (props) => {
     const history = useHistory();
     const location = useLocation();
-    const [listOfGroups, setListOfGroups] = useState(null);
+    const [listOfGroups, setListOfGroups] = useState([]);
     const [group, setGroup] = useState();
     const [events, setEvents] = useState([]);
     const [show, setShow] = useState(false);
