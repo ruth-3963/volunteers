@@ -32,7 +32,6 @@ const App = () => {
     if(group && group.id){
       setLocalGroup(group);
       setIsLogin(true);
-      history.push("/");
     }
   },[]);
   const signOut = () => {
@@ -50,8 +49,10 @@ const App = () => {
       }
       <Switch>
         <Route exact path="/">
-          {isLogin && localGroup && localGroup.id ? <Redirect to={`/schedule/${localGroup.id}`} /> : <Redirect to="/signin" />}
+          {isLogin && localGroup && localGroup.id ? <Redirect to={`~/schedule/${localGroup.id}`} /> :
+           <Redirect push to="/signin" render={({ match }) => <SignIn isLogin={isLogin} setIsLogin={(val) => setIsLogin(val)} />}/>}
         </Route>
+      
         <Route exect path="/signin" render={({ match }) => <SignIn isLogin={isLogin} setIsLogin={(val) => setIsLogin(val)} />} />
         <Route exect path="/signup" component={SignUp} />
         <Route exect path="/createGroup" component={CreateGroup} />
