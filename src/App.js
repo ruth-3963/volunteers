@@ -16,7 +16,7 @@ import EditScheduler2 from './scheduler/editScheduer2';
 import ChooseEvents from './scheduler/chooseEvents';
 import Button from 'react-bootstrap/esm/Button';
 import { SignalWifiOffOutlined } from '@material-ui/icons';
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory, useLocation,Redirect } from "react-router-dom";
 import CSS_COLOR_NAMES from './colors';
 import { Dropdown } from 'react-bootstrap';
 //import WeekCalender from './scheduler/weekCalender';
@@ -26,22 +26,21 @@ const App = () => {
   const [user, setUser] = useState({});
   const [isLogin, setIsLogin] = useState(false);
   const history = useHistory();
+  const [localGroup ,setLocalGroup] = useState();
   useEffect(() => {
-    const localUser = JSON.parse(localStorage.getItem("user"));
-    const localGroup = JSON.parse(localStorage.getItem("group"));
-    if (localUser && localGroup) {
+    const group = JSON.parse(localStorage.getItem("group"));
+    if(group && group.id){
+      setLocalGroup(group);
       setIsLogin(true);
-      history.push("/schedule/" + localGroup.id);
+      history.push("/");
     }
-    else {
-      history.push("/signin");
-    }
-  }, [isLogin]);
+  },[]);
   const signOut = () => {
     localStorage.setItem("user", null);
     localStorage.setItem("group", null);
     localStorage.setItem("userToGroup", null);
     setIsLogin(false);
+    history.push("/");
   }
   return (
     <UserContext.Provider value={{ user, setUser }}>
@@ -50,6 +49,9 @@ const App = () => {
           <Link to="/signin">SignIn</Link>
       }
       <Switch>
+        <Route exact path="/">
+          {isLogin && localGroup && localGroup.id ? <Redirect to={`/schedule/${localGroup.id}`} /> : <Redirect to="/signin" />}
+        </Route>
         <Route exect path="/signin" render={({ match }) => <SignIn isLogin={isLogin} setIsLogin={(val) => setIsLogin(val)} />} />
         <Route exect path="/signup" component={SignUp} />
         <Route exect path="/createGroup" component={CreateGroup} />
