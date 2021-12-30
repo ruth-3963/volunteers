@@ -1,10 +1,13 @@
-import React, { cloneElement, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import useStateWithCallback from "use-state-with-callback";
 import { useParams } from 'react-router';
 import axios from "axios";
 import serverURL from "../serverURL";
 import '../App.css'
 import './CalendarStyles.css'
 import Button from "react-bootstrap/Button";
+import Toast from 'react-bootstrap/Toast'
+import ToastContainer from 'react-bootstrap/ToastContainer'
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import "../../node_modules/@syncfusion/ej2-base/styles/material.css";
 import "../../node_modules/@syncfusion/ej2-buttons/styles/material.css";
@@ -16,14 +19,16 @@ import "../../node_modules/@syncfusion/ej2-navigations/styles/material.css";
 import "../../node_modules/@syncfusion/ej2-popups/styles/material.css";
 import "../../node_modules/@syncfusion/ej2-splitbuttons/styles/material.css";
 import "../../node_modules/@syncfusion/ej2-react-schedule/styles/material.css";
-import { ScheduleComponent, Day, Week, WorkWeek, Month, Inject, ViewsDirective, ViewDirective,ResourcesDirective, ResourceDirective, popupOpen } from '@syncfusion/ej2-react-schedule';
+import { ScheduleComponent, Day, Week, WorkWeek, Month, Inject, ViewsDirective, ViewDirective, ResourcesDirective, ResourceDirective, popupOpen } from '@syncfusion/ej2-react-schedule';
+import { DataManager, Query } from '@syncfusion/ej2-data';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import { DateTimePickerComponent, TimePickerComponent } from '@syncfusion/ej2-react-calendars';
 import { useLocation, useHistory } from "react-router-dom"
 import { useContext } from 'react';
-import { UserContext } from "./../App"
+import { GroupContext, UserContext, userToGroupContext } from "./../App"
 import { BsImageFill } from 'react-icons/bs';
 import { Description } from '@material-ui/icons';
+import ChooseDate from './chooseDate';
 const EditScheduler2 = () => {
   const calendar = useRef();
   const { id } = useParams();
@@ -33,9 +38,26 @@ const EditScheduler2 = () => {
   const [updateEvents, setUpdateEvents] = useState([]);
   const [deletedEvents, setDeletedEvents] = useState([]);
   const [ownerData, setOwnerData] = useState([]);
-  const [ownerData2, setOwnerData2] = useState([]);
+  const [showToast, setShowToast] = useState(false);
   const { user, setUser } = useContext(UserContext);
-  const localUserToGroup = JSON.parse(localStorage.getItem("userToGroup"));
+  const { userToGroup, setUserToGroup } = useContext(userToGroupContext);
+  const { group, setGroup } = useContext(GroupContext);
+  const [showDateAlert, setShowDateAlert] = useState(false)
+  const [rangeDates, setRangeDates] = useStateWithCallback([], value => {
+    if (value.length) {
+      const eventsToCalc = calendar.current.eventsData.
+                            filter(e => e.StartTime > Date.parse(value[0]) && e.EndTime < Date.parse(value[1]));
+      setShowDateAlert(false);
+      CalcEvents(eventsToCalc);
+    }
+  });
+  const [isDisplayEvents, setIsDisplayEvents] = useStateWithCallback(false, value => {
+    if (value) {
+      const eventsToCalc = calendar.current.getCurrentViewEvents();
+      setShowDateAlert(false);
+      CalcEvents(eventsToCalc);
+    }
+  });
 
   useEffect(async () => {
     let result = await axios.get("" + serverURL + "api/Event/" + id);
@@ -43,24 +65,22 @@ const EditScheduler2 = () => {
       setEvents(result.data);
     }
     result = await axios.get("" + serverURL + "getOwnerData", {
-      params: { 
+      params: {
         groupId: id,
       }
     });
-    //const newOwnerData = result.data.map(val => ({ Id: val.userId, OwnerColor: val.color , OwnerText: val.userName }))
     setOwnerData(result.data);
   }, []);
 
   const sendData = async () => {
-    let localUser = JSON.parse(localStorage.getItem("user"));
-    let localGroup = JSON.parse(localStorage.getItem("group"));
-    await axios.post("" + serverURL + "api/Event", { events: newEvents, group: localGroup });
+    await axios.post("" + serverURL + "api/Event", { events: newEvents, group: group });
     const newUpdate = updateEvents.map(({ Id, OwnerId, EndTimezone, IsAllDay, RecurrenceRule, StartTimezone, ...allProp }) => allProp);
-    await axios.put("" + serverURL + "UpdateEvents/",  newUpdate );
+    await axios.put("" + serverURL + "UpdateEvents/", newUpdate);
     const newDel = deletedEvents.map(({ Id, OwnerId, ...allProp }) => allProp);
     await axios.delete("" + serverURL + "api/Event", { data: newDel }, { "Authorization": "***" });
-    const result = await axios.get("" + serverURL + "api/Event", { params: { id: localGroup.id } });
+    const result = await axios.get("" + serverURL + "api/Event", { params: { id: group.id } });
     setEvents(result.data);
+    setShowToast(true);
   }
   const onActionComplete = (args) => {
 
@@ -99,27 +119,69 @@ const EditScheduler2 = () => {
     if (args.changedRecords) {
       setEvents(calendar.current.eventsData);
     }
-    if(args.requestType == "eventCreate"){
+    if (args.requestType == "eventCreate") {
       args.data[0].OwnerId = null;
     }
   }
-  const calcEvents = async() => {
-    const result = await axios.get("" + serverURL + "calcEvents" , { params : { groupId : id}});
-    setEvents(result.data);
+  const CalcEvents = async (eventsToCalc) => {
+    // debugger;
+    // let EventsToCalc;
+    // if (isDisplayEvents) {
+    //   EventsToCalc = calendar.current.getCurrentViewEvents();
+    // }
+    // else if (rangeDates.length) {
+    //   EventsToCalc = calendar.current.filter(e => e.StartTime > rangeDates[0] && e.EndTime < rangeDates[1]);
+    // }
+    if (eventsToCalc && eventsToCalc.length) {
+      const result = await axios.post("" + serverURL + "calcEvents", {
+        events: eventsToCalc
+      })
+      setEvents(result.data);
+    }
+    else {
+      alert("no events to calc")
+    }
+    setIsDisplayEvents(false);
+    setRangeDates([]);
   }
-  return (<div><ButtonComponent onClick={() => sendData()} variant="link" > save schedule</ButtonComponent>
-  {localUserToGroup && localUserToGroup.is_manager ?<><ButtonComponent onClick = {() => calcEvents()}>calc events </ButtonComponent> <ButtonComponent onClick={() => history.push("/addVolunteer")} variant="link" > add volunteers </ButtonComponent></>:null}
-    <ScheduleComponent ref={calendar} 
-    actionBegin={(args) => onActionBegin(args)} 
-    actionComplete={(args) => onActionComplete(args)} 
-    width='100%' height='550px' 
-    eventSettings={{ dataSource: events }}
-    popupOpen = {(args) => openPopup(args)} >
+
+  return (<>
+    <ChooseDate
+      setShowDateAlert={(val) => setShowDateAlert(val)}
+      showDateAlert={showDateAlert}
+      calendar = {calendar.current}
+      calc = {(val) => CalcEvents(val)}
+    />
+    <ToastContainer style={{ position: 'relative' }} className="p-3" position="top-end">
+      <Toast onClose={() => setShowToast(false)} show={showToast}
+      // delay={3000} autohide
+      >
+        <Toast.Header>
+          <strong className="me-auto">Success</strong>
+        </Toast.Header>
+        <Toast.Body>המידע נשמר בהצלחה</Toast.Body>
+      </Toast>
+    </ToastContainer>
+    <ButtonComponent onClick={() => sendData()} variant="link" > save schedule</ButtonComponent>
+    <ButtonComponent onClick={() => setShowDateAlert(true)}>calc events </ButtonComponent> <ButtonComponent onClick={() => history.push("/addVolunteer")} variant="link" > add volunteers </ButtonComponent>
+    <ScheduleComponent
+      ref={calendar}
+      actionBegin={(args) => onActionBegin(args)}
+      actionComplete={(args) => onActionComplete(args)}
+      width='100%' height='550px'
+      eventSettings={{
+        dataSource: events,
+        fields: {
+          subject: { title: 'Event Name', name: 'Subject', default: 'Add Name' },
+        }
+      }} >
       <ResourcesDirective>
-        <ResourceDirective field='OwnerId' title='Owner' name='Owners' dataSource={ownerData} textField="OwnerText" idField='Id' colorField='OwnerColor'>
+        <ResourceDirective field='OwnerId' title='Owner'
+          dataSource={ownerData}
+          textField="OwnerText" idField='Id' colorField='OwnerColor'>
         </ResourceDirective>
       </ResourcesDirective>
       <Inject services={[Day, Week, WorkWeek, Month]} />
-    </ScheduleComponent></div >);
+    </ScheduleComponent></>);
 }
 export default EditScheduler2;

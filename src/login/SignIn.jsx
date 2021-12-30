@@ -2,21 +2,23 @@ import { Link, useHistory, useLocation } from 'react-router-dom';
 import './login.css';
 import '../../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import Button from 'react-bootstrap/Button';
+import CloseButton from 'react-bootstrap/CloseButton'
 import Form from 'react-bootstrap/Form';
 import { useFormik } from 'formik';
 import axios from 'axios';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useContext , useCallback, useEffect, useRef, useState } from 'react';
 import serverURL from '../serverURL';
 import Modal from "react-bootstrap/Modal";
 import { useLocationState } from 'react-router-use-location-state';
+import { GroupContext, UserContext, userToGroupContext } from '../App';
 const SignIn = (props) => {
     const history = useHistory();
     const location = useLocation();
+    const {user , setUser} = useContext(UserContext);
+    const {group , setGroup} = useContext(GroupContext);
+    const {userToGroup , setUserToGroup} = useContext(userToGroupContext);
     const [listOfGroups, setListOfGroups] = useState([]);
-    const [group, setGroup] = useState();
-    const [events, setEvents] = useState([]);
     const [show, setShow] = useState(false);
-    const list = useRef();
     const handleShow = () => { setShow(true) }
     const handleClose = () => { setShow(false) }
 
@@ -43,20 +45,21 @@ const SignIn = (props) => {
                     }
                 });
                 if (result.data) {
-                    let user = result.data;
-                    if (user.email && user.password) {
-                        localStorage.setItem("user", JSON.stringify(user));
+                    let newUser = result.data;
+                    if (newUser.email && newUser.password) {
+                        localStorage.setItem("user", JSON.stringify(newUser));
+                        setUser(newUser);
                         const groups = await axios.get("" + serverURL + "GetByManager", {
                             params: {
-                                id: result.data.id,
+                                id: result.data.id
                             }
                         });
                         setListOfGroups(groups.data);
                         props.setIsLogin(true);
                     }
-                    if (user.email && !user.password) {
-                        user.password = password;
-                        history.push({ pathname: "/signup", state: user });
+                    if (newUser.email && !newUser.password) {
+                        newUser.password = password;
+                        history.push({ pathname: "/signup", state: newUser });
                     }
                 }
                 else alert("your email or password is incorrect");
@@ -77,35 +80,36 @@ const SignIn = (props) => {
     }, []);
 
     const submitAllValue = async () => {
-        const localUser = JSON.parse(localStorage.getItem("user"));
         const formikGroup = formik.values.group;
         if (formikGroup === "create new group" || !listOfGroups.length) {
-            history.push({ pathname: "/createGroup", state: { email: formik.values.email } });
+            history.push("/createGroup");
         }
         else {
             const index = formikGroup ? listOfGroups.findIndex(g => g.name === formikGroup) : 0;
-            const group = listOfGroups[index];
+            let currGroup = listOfGroups[index];
             const resultGroup = await axios.get("" + serverURL + "api/Group", {
                 params: {
-                    id: group.id,
+                    id: currGroup.id,
                 }
             });
+            currGroup = resultGroup.data;
             setGroup(resultGroup.data);
             localStorage.setItem("group", JSON.stringify(resultGroup.data));
             const resultUsersToGroups = await axios.get("" + serverURL + "api/UsersToGroups", {
                 params: {
-                    groupId: group.id,
-                    userId: localUser.id
+                    groupId: currGroup.id,
+                    userId: user.id
                 }
             });
+            setUserToGroup(resultUsersToGroups.data)
             localStorage.setItem("userToGroup", JSON.stringify(resultUsersToGroups.data));
             if(!resultUsersToGroups.data.color){
-                history.push({ pathname: "/chooseEvents/" + group.id });
+                history.push({ pathname: "/chooseEvents/" + currGroup.id });
                 return;
             }
             if (resultGroup.data.events){
                // history.push({ pathname: "/schedule/" + group.id , state: { group: resultGroup.data, events: JSON.parse(resultGroup.data.events) } });
-                history.push("/schedule/" + group.id);
+                history.push("/schedule/" + currGroup.id);
                 return;
             }
            // history.push({ pathname: "editSchedule/" + group.id });
@@ -118,9 +122,10 @@ const SignIn = (props) => {
         <div className="auth-wrapper">
             <div className="auth-inner">
                 <form onSubmit={formik.handleSubmit} >
-                    <button type="button" className="close" aria-label="Close" onClick={() => history.push("/")} >
+                    <CloseButton/>
+                    {/* <button type="button" className="close" aria-label="Close" onClick={() => history.push("/")} >
                         <span aria-hidden="true" >&times;</span>
-                    </button><br />
+                    </button><br /> */}
                     <h3>Sign In</h3>
                     <div className="form-group">
                         <label>Email</label>
@@ -159,10 +164,10 @@ const SignIn = (props) => {
                 </Modal.Header>
                 <Modal.Body>you till dont declare the schedule to your group</Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => history.push({ pathname: "/editSchedule", state: { group: group } })}>
+                    <Button variant="secondary" onClick={() => history.push(`/editSchedule${group.id}`)}>
                         Edit Schedule
                     </Button>
-                    <Button variant="primary" onClick={() => { history.push({ pathname: "/addVolunteer", state: { group: group } }) }}>
+                    <Button variant="primary" onClick={() => { history.push(`/addVolunteer${group.id}`)}}>
                         Add volunteers
                     </Button>
                 </Modal.Footer>

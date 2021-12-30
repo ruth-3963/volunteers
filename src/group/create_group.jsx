@@ -1,16 +1,18 @@
 import axios from 'axios';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
+import { useContext } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { useHistory, useLocation } from 'react-router-dom';
+import { GroupContext, UserContext, userToGroupContext } from '../App';
 import serverURL from '../serverURL';
 const CreateGroup = () => {
     const location = useLocation();
     const [isCreate, setIsCreate] = useState(false);
-    const [group ,setGroup] = useState(null);
-    const [localUser , setLocalUser] = useState(JSON.parse(localStorage.getItem("user")));
-    const [localGroup , setLocalGroup] = useState(JSON.parse(localStorage.getItem("group")))
+    const {group ,setGroup} = useContext(GroupContext);
+    const {userToGroup ,setUserToGroup} = useContext(userToGroupContext)
+    const {user , setUser }= useContext(UserContext);
     const history = useHistory();
     const formik = useFormik({
         initialValues: {
@@ -19,7 +21,7 @@ const CreateGroup = () => {
         },
         onSubmit:async(values) => {
             const result = await axios.post("" + serverURL + "api/Group", {
-                id_manager: localUser.id,
+                id_manager: user.id,
                 name: values.name,
                 description: values.description
             })
@@ -27,6 +29,7 @@ const CreateGroup = () => {
                 setIsCreate(true);
                 setGroup(result.data.group);
                 localStorage.setItem("group", JSON.stringify(result.data.group));
+                setUserToGroup(result.data);
                 localStorage.setItem("userToGroup" , JSON.stringify(result.data))
             }
             else {
@@ -53,9 +56,9 @@ const CreateGroup = () => {
             <Button type="submit" variant="primary" block hidden={isCreate}>Submit</Button>
         </Form>
         <Button variant="outline-primary" block hidden={!isCreate}
-         onClick={()=>history.push({pathname:"/addVolunteer",state:{group:group}})}>
+         onClick={()=>history.push(`/addVolunteer/${group.id}`)}>
             add volunteers to your group</Button>
-        <Button variant="outline-primary" block hidden={!isCreate} onClick={()=>history.push({pathname:"/editSchedule/" + group.id + "",state:{group:group}})}>
+        <Button variant="outline-primary" block hidden={!isCreate} onClick={()=>history.push(`/editSchedule/${group.id}`)}>
             edit schedule to your group</Button>
     </div></div >
     )

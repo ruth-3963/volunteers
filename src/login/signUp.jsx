@@ -6,6 +6,8 @@ import axios from 'axios';
 import serverURL from '../serverURL';
 import Modal from "react-bootstrap/Modal";
 import Button from 'react-bootstrap/Button';
+import { useContext } from "react";
+import { GroupContext } from "../App";
 
 
 const SignUp = () => {
@@ -13,7 +15,7 @@ const SignUp = () => {
     const [matchPassword, setMatchPassword] = useState(false);
     const [show, setShow] = useState(false);
     const [listOfGroups, setListOfGroups] = useState(null);
-    const [group, setGroup] = useState();
+    const {group, setGroup} = useContext(GroupContext);
     const [events, setEvents] = useState([]);
 
     const formik = useFormik({
@@ -63,24 +65,23 @@ const SignUp = () => {
 
     useEffect(changePassword, [formik.values.password, formik.values.confirm_password])
     const submitAllValue = async () => {
-        debugger;
         const formikGroup = formik.values.group;
         if (formikGroup === "create new group" || !listOfGroups.length) {
-            history.push({ pathname: "/createGroup", state: { email: formik.values.email } });
+            history.push({ pathname: "/createGroup"});
         }
         else {
             const index = formikGroup ? listOfGroups.findIndex(g => g.name === formikGroup) : 0;
-            const group = listOfGroups[index];
+            const newGroup = listOfGroups[index];
             const result = await axios.get("" + serverURL + "api/Group", {
                 params: {
-                    id: group.id,
+                    id: newGroup.id,
                 }
             });
             setGroup(result.data);
             localStorage.setItem("group", JSON.stringify(result.data));
             if (result.data.events) {
                 setEvents(JSON.parse(result.data.events));
-                history.push({ pathname: "/schedule", state: { group: result.data, events: JSON.parse(result.data.events) } });
+                history.push({ pathname: `/schedule${group.id}` });
             }
             else {
                 setShow(true);
