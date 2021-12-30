@@ -14,7 +14,7 @@ import { Link } from "react-router-dom";
 import ChooseColor from '../chooseColor';
 import { useContext } from 'react';
 import { UserContext } from '../../App';
-const Profile = () => {
+export const Profile = () => {
     const {user , setUser } = useContext(UserContext);
     const [currGroup, setCurrGroup] = useState({});
 
@@ -71,8 +71,10 @@ const Profile = () => {
                 id: user.id,
             }
         });
+        console.log(changeGroup);
         setUserGroup(groups.data);
-    }, [changeGroup])
+        console.log(changeGroup);
+    }, [changeGroup]);
     const changeColor = (group) => {
 
         setCurrGroup(group);
@@ -163,4 +165,4 @@ const Profile = () => {
 
     )
 }
-export default Profile;
+ 

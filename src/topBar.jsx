@@ -29,7 +29,7 @@ const TopBar = (props) => {
                         {userToGroup && userToGroup.is_manager ? <><Nav.Link>Edit Schedule</Nav.Link><span> </span></> :null}
                         {userToGroup && userToGroup.is_manager ? <><Nav.Link >Add volunteers</Nav.Link><span> </span></>  :null}
                         {userToGroup && userToGroup.is_manager ? <><Nav.Link >Calc events</Nav.Link><span> </span></> :null}
-                        {userToGroup ? <><Link to ="chooseEvents/18">Choose events</Link><span> </span></> :null}
+                        {userToGroup ? <><Nav.Link >Choose events</Nav.Link><span> </span></> :null}
 
                     </Nav>
                 </Navbar.Collapse>

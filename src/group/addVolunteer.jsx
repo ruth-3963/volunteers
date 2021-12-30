@@ -2,7 +2,8 @@ import axios from 'axios';
 import React, { useState, useRef, useEffect } from 'react';
 import Button from 'react-bootstrap/esm/Button';
 import Form from 'react-bootstrap/Form';
-import { Toast, ToastContainer } from 'react-bootstrap';
+import { Toast } from 'react-bootstrap';
+import ToastContainer from "react-bootstrap/ToastContainer"
 import serverURL from '../serverURL';
 import { useLocation, useHistory } from 'react-router-dom';
 import '../../node_modules/bootstrap/dist/css/bootstrap.min.css'
