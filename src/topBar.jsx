@@ -1,7 +1,6 @@
 import React,{useContext} from "react";
 import logo from './logo_min.jpg';
 import { Navbar, Container, NavDropdown, Nav } from 'react-bootstrap'
-import { ReactComponent as ReactLogo } from './logo.svg';
 import {Link} from 'react-router-dom';
 import { Button } from "react-bootstrap";
 import { UserContext,userToGroupContext,GroupContext} from "./App";
