@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useState, useRef, useEffect } from 'react';
 import Button from 'react-bootstrap/esm/Button';
+import { useErrorHandler } from 'react-error-boundary';
 import Form from 'react-bootstrap/Form';
 import { Toast } from 'react-bootstrap';
 import ToastContainer from "react-bootstrap/ToastContainer"
@@ -23,6 +24,7 @@ const AddVolunteer = () => {
     const { group, setGroup } = useContext(GroupContext)
     const [showToast, setShowToast] = useState(false);
     const [addedUsers, setAddedUsers] = useState([]);
+    const errorHandler = useErrorHandler();
     const handleSubmit = (e) => {
         e.preventDefault();
         const arr = Array.prototype.slice.call(e.target.children[0].children);
@@ -37,7 +39,8 @@ const AddVolunteer = () => {
         axios.post("" + serverURL + "AddUsers", {
             emails: volunteers,
             group: group
-        }).then(result => { if (result.data){setAddedUsers(result.data); setShowToast(true) } })
+        }).then(result => {  if (result.data){setAddedUsers(result.data); setShowToast(true) } })
+          .catch(error => errorHandler(error))
         formRef.current.reset();
     }
     return (<div className="auth-wrapper">

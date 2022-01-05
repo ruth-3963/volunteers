@@ -127,15 +127,14 @@ const Calendar = (props) => {
     <div>
         
         {userToGroup && userToGroup.is_manager ?
-            <ButtonComponent onClick={(e) => { history.push(`editSchedule/${userToGroup.group_id}`) }}>edit schedule</ButtonComponent> : ""}
-        <ButtonComponent  onClick={(e) => { history.push(`chooseEvents/${userToGroup.group_id}`)}}>Choose events</ButtonComponent>
+            <ButtonComponent onClick={(e) => { history.push(`./../editSchedule/${userToGroup.group_id}`) }}>edit schedule</ButtonComponent> : ""}
+        {userToGroup && <ButtonComponent  onClick={(e) => { history.push(`./../chooseEvents/${userToGroup.group_id}`)}}>Choose events</ButtonComponent>}
  
         <ScheduleComponent ref={calendar} width='100%' height='100%'
             //  quickInfoTemplates={(props) => {
             //     return (<div className="quick-info-header">
             //         <div className="quick-info-header-content" >
             //             <div className="quick-info-title"></div>
-            //             <div className="duration-text"></div>
             //         </div>
             //     </div>)
 

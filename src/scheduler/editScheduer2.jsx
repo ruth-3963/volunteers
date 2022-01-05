@@ -163,7 +163,7 @@ const EditScheduler2 = () => {
       </Toast>
     </ToastContainer>
     <ButtonComponent onClick={() => sendData()} variant="link" > save schedule</ButtonComponent>
-    <ButtonComponent onClick={() => setShowDateAlert(true)}>calc events </ButtonComponent> <ButtonComponent onClick={() => history.push("/addVolunteer")} variant="link" > add volunteers </ButtonComponent>
+    <ButtonComponent onClick={() => setShowDateAlert(true)}>calc events </ButtonComponent> <ButtonComponent onClick={() => history.push("/addVolunteers")} variant="link" > add volunteers </ButtonComponent>
     <ScheduleComponent
       ref={calendar}
       actionBegin={(args) => onActionBegin(args)}
