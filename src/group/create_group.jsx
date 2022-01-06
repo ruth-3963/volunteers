@@ -56,7 +56,7 @@ const CreateGroup = () => {
             <Button type="submit" variant="primary" block hidden={isCreate}>Submit</Button>
         </Form>
         <Button variant="outline-primary" block hidden={!isCreate}
-         onClick={()=>history.push(`/addVolunteer/${group.id}`)}>
+         onClick={()=>history.push(`/addVolunteers/${group.id}`)}>
             add volunteers to your group</Button>
         <Button variant="outline-primary" block hidden={!isCreate} onClick={()=>history.push(`/editSchedule/${group.id}`)}>
             edit schedule to your group</Button>
