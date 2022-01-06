@@ -14,55 +14,86 @@ import { Link } from "react-router-dom";
 import ChooseColor from '../chooseColor';
 import { useContext } from 'react';
 import { UserContext } from '../../App';
+import { Modal, FormControl,Alert } from 'react-bootstrap';
+import { BorderColor } from '@material-ui/icons';
+import { useErrorHandler } from 'react-error-boundary';
+import serverURL from '../../serverURL';
 export const Profile = () => {
-    const {user , setUser } = useContext(UserContext);
+    const { user, setUser } = useContext(UserContext);
     const [currGroup, setCurrGroup] = useState({});
-
     const [userGroups, setUserGroup] = useState([]);
     const [showColorAlert, setShowColorAlert] = useState(false);
     const [changeGroup, setChangeGroup] = useState(true);
     const [isInEdit, setIsInEdit] = useState(false);
-    const [color, setColor] = useState(''); const formik = useFormik({
+    const [showValid, setShowValid] = useState(false);
+    const [showAlert ,setShowAlert] = useState(false);
+    const [variantAlert, setVariantAlert] = useState('');
+    const [alertMessage ,setAlertMessage] = useState('');
+    const [password, setPassword] = useState("");
+    const [validError, setValidError] = useState(false);
+    const [color, setColor] = useState('');
+    const errorHandler = useErrorHandler();
+    const handleClose = () => {
+        setShowValid(false);
+        setValidError(false);
+        setPassword("");
+        debugger;
+       
+    };
+    const cancel = () => {
+        setIsInEdit(false);
+        for (const [key, value] of Object.entries(formik.values)) {
+            if(user.hasOwnProperty(key)){
+                formik.values[key] = user[key];
+            }
+        }
+    }
+    const checkPassword = () => {
+        if (user.password === password) {
+            setIsInEdit(true);
+            handleClose();
+            setPassword("");
+        }
+        else {
+            setValidError(true)
+        }
+    }
+    const formik = useFormik({
         initialValues: {
             name: '',
             email: '',
             password: '',
+            confirmPassword: '',
             phone: '',
-            address: ''
         },
         onSubmit: async (values) => {
-            debugger;
-            // if (matchPassword) {
-            //     const user = {};
-            //     user.name = values.name;
-            //     user.email = values.email;
-            //     user.password = values.password;
-            //     user.phone = values.phone;
-            //     const result = await axios.post("" + serverURL + "api/User", {
-            //         name: user.name,
-            //         password: user.password,
-            //         phone: user.phone,
-            //         email: user.email
-            //     });
-            //     localStorage.setItem("user", JSON.stringify(result.data));
-            //     const groups = await axios.get("" + serverURL + "GetByManager", {
-            //         params: {
-            //             id: result.data.id,
-            //         }
-            //     });
-            //     setListOfGroups(groups.data);
-            //     setShow(true);
-            // }
-            // else {
-            //     alert("the passwords doesnt match");
-            // }
-        },
+            axios.put("" + serverURL + "api/User/" + 234, {
+                name: values.name,
+                email: values.email,
+                password: values.password,
+                phone: values.phone
+            }).then(result => {
+                if (result.data) {
+                    localStorage.setItem("user", JSON.stringify(result.data));
+                    setUser(result.data)
+                    setAlertMessage("User updated");
+                    setVariantAlert('success')
+                    setIsInEdit(false);
+                }
+                else {
+                    setAlertMessage("Occurred error - user not updated");
+                    setVariantAlert('danger')
+                }   
+                setShowAlert(true);
+            }).catch(err => errorHandler(err))
+        }
     });
     useEffect(() => {
         formik.values.email = user.email;
         formik.values.phone = user.phone;
-        formik.values.address = user.address;
+        formik.values.name = user.name;
         formik.values.password = user.password;
+        formik.values.confirmPassword = user.password;
 
     }, []);
     useEffect(async () => {
@@ -85,47 +116,78 @@ export const Profile = () => {
         debugger;
     }
     return (
-        <> <ChooseColor
-            showColorAlert={showColorAlert}
-            color={color} setColor={(val) => { setColor(val) }}
-            setShow={(val) => setShowColorAlert(val)}
-            group={currGroup}
-            changeGroup={changeGroup}
-            setChangeGroup={(val) => setChangeGroup(val)}
-        />
+        <>
+        {showAlert && <Alert variant={variantAlert} onClose={() => setShowAlert(false)} dismissible>
+            <b>{alertMessage}</b>
+        </Alert>}
+            <Modal show={showValid} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>User Validation</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <b>We want sure that it is really you.<br />Please type password</b><br /><br />
+                    <FormControl
+                        type="password"
+                        placeholder="type password..."
+                        onChange={(e) => setPassword(e.target.value)}
+                        value={password}
+                    ></FormControl>
+                    {validError && <b style={{ color: "red" }}>password doesnt match</b>}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={checkPassword}>
+                        Check
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            <ChooseColor
+                showColorAlert={showColorAlert}
+                color={color} setColor={(val) => { setColor(val) }}
+                setShow={(val) => setShowColorAlert(val)}
+                group={currGroup}
+                changeGroup={changeGroup}
+                setChangeGroup={(val) => setChangeGroup(val)}
+            />
 
             <div className="container rounded bg-white mt-5 mb-5" >
                 <div className="row">
                     <div className="col-md-3 border-right">
                         <div className="d-flex flex-column align-items-center text-center p-3 py-5">
-                            {/* <img className="rounded-circle mt-5" width="150px" src="https://st3.depositphotos.com/15648834/17930/v/600/depositphotos_179308454-stock-illustration-unknown-person-silhouette-glasses-profile.jpg" /> */}
                             <span className="font-weight-bold">{formik.values.name}</span><span className="text-black-50">{formik.values.email}</span><span> </span></div>
                     </div>
                     <div className="col-md-5 border-right">
                         <div className="p-3 py-5">
                             <div className="d-flex justify-content-between align-items-center mb-3">
                                 <h4 className="text-right"><u>Profile Settings</u></h4>
-                                <Button variant='link' onClick={(e) => { e.preventDefault(); setIsInEdit(true) }} >update details<Edit></Edit></Button>
+                                <Button variant='link' onClick={(e) => {
+                                    e.preventDefault(); setShowValid(true);
+                                }} >update details<Edit></Edit></Button>
                             </div>
                             <div className="row mt-2">
                                 {/* <div className="col-md-6"><label className="labels">Name</label><input type="text" className="form-control" placeholder="first name" value=""/></div> */}
                             </div> <form onSubmit={formik.handleSubmit}>
-                            <div className="row mt-3">
-                               
+                                <div className="row mt-3">
+                                    <div className="col-md-12"><label className="labels">Name</label>
+                                        <input type="text" disabled={!isInEdit} className="form-control" onChange={formik.handleChange} value={formik.values.name} name="name" id="name" /></div>
                                     <div className="col-md-12"><label className="labels">Email</label>
                                         <input type="email" disabled={!isInEdit} className="form-control" onChange={formik.handleChange} value={formik.values.email} name="email" id="ëmail" /></div>
                                     <div className="col-md-12"><label className="labels">Phone</label>
                                         <input type="text" disabled={!isInEdit} className="form-control" onChange={formik.handleChange} value={formik.values.phone} name="phone" id="phone" /></div>
-                                    <div className="col-md-12"><label className="labels">Address</label>
-                                        <input type="text" disabled={!isInEdit} className="form-control" onChange={formik.handleChange} value={formik.values.address} name="address" id="address" /></div>
                                     <div className="col-md-12"><label className="labels">Password</label>
                                         <input type="password" disabled={!isInEdit} className="form-control" onChange={formik.handleChange} value={formik.values.password} name="password" id="password" /></div>
+                                    <div hidden={!isInEdit} className="col-md-12"><label className="labels">Confirm password</label>
+                                        <input type="password" className="form-control" onChange={formik.handleChange} value={formik.values.confirmPassword} name="confirmPassword" id="confirmPassword"
+                                            style={formik.values.confirmPassword === formik.values.password ? { borderColor: "green" } : { borderColor: "red" }} /></div>
                                 </div>
 
-                            <div className="mt-3 text-center" id="buttons">
-                                <Button block hidden={!isInEdit} type="submit" className="btn btn-primary profile-button" >Save Profile</Button>
-                                <Button block hidden={!isInEdit} onClick={() => setIsInEdit(false)} className="btn btn-primary profile-button" >Cancel</Button>
-                            </div> 
+                                <div className="mt-3 text-center" id="buttons">
+                                    <Button block hidden={!isInEdit} disabled={formik.values.confirmPassword != formik.values.password}
+                                        type="submit" className="btn btn-primary profile-button" >Save Profile</Button>
+                                    <Button block hidden={!isInEdit} onClick={cancel} className="btn btn-primary profile-button" >Cancel</Button>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -133,7 +195,7 @@ export const Profile = () => {
                         <div className="p-3 py-5">
                             <div className="d-flex justify-content-between align-items-center experience">
                                 <span>Groups</span>
-                                    <Button variant='outline-primary'>create group</Button>
+                                <Button variant='outline-primary'>create group</Button>
                             </div><br />
                             {/* <div className="col-md-12"><label className="labels">Experience in Designing</label>
                             <input type="text" className="form-control" placeholder="experience" value="" />
@@ -165,4 +227,3 @@ export const Profile = () => {
 
     )
 }
- 
