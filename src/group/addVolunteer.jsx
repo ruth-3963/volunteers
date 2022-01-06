@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useState, useRef, useEffect } from 'react';
-import Button from 'react-bootstrap/esm/Button';
+import {Button,CloseButton} from 'react-bootstrap';
 import { useErrorHandler } from 'react-error-boundary';
 import Form from 'react-bootstrap/Form';
 import { Toast } from 'react-bootstrap';
@@ -24,6 +24,7 @@ const AddVolunteer = () => {
     const { group, setGroup } = useContext(GroupContext)
     const [showToast, setShowToast] = useState(false);
     const [addedUsers, setAddedUsers] = useState([]);
+    const history = useHistory();
     const errorHandler = useErrorHandler();
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -45,6 +46,8 @@ const AddVolunteer = () => {
     }
     return (<div className="auth-wrapper">
         <div className="auth-inner">
+        <CloseButton onClick={() => history.goBack()}/>
+
             <div>
                 <ToastContainer style={{ position: 'relative' }} className="p-3" position="top-end">
                     <Toast onClose={() => setShowToast(false)} show={showToast}  delay={9000} autohide>
@@ -60,11 +63,12 @@ const AddVolunteer = () => {
                         </Toast.Body>
                     </Toast>
                 </ToastContainer>
-                <h3 style={{ display: "inline-block" }}>Add Volunteers</h3>
+                <h3 >Add Volunteers
                 <Tooltip title="Add" aria-label="add">
                     <AddCircle style={{ float: "right" }} />
-                </Tooltip></div>
+                </Tooltip></h3></div>
             <Form ref={formRef} onSubmit={(e) => handleSubmit(e)}>
+
                 <div className="mb-3">
                     {volunteers.map((element, index) => element)}
                 </div>

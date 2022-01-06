@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Link, useHistory, useLocation, useParams } from "react-router-dom";
 import TextField from '@material-ui/core/TextField';
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button ,CloseButton} from 'react-bootstrap';
 import { useEffect } from "react";
 import serverURL from "../serverURL";
 import axios from "axios";
@@ -76,6 +76,7 @@ export const ResetPassword = () => {
         return (
             <div className="auth-wrapper">
                 <div className="auth-inner">
+                <CloseButton onClick={() => history.goBack()}/>
                     <div style={loading}>
                         <h5><b>Problem resetting password. Please send another reset link.</b></h5>
                         <Link to="/" style={{float:'right'}}>Go Home</Link>

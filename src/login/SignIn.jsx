@@ -138,7 +138,7 @@ const SignIn = (props) => {
         <div className="auth-wrapper">
             <div className="auth-inner">
                 <form onSubmit={formik.handleSubmit} >
-                    <CloseButton />
+                    <CloseButton onClick={() => history.goBack()} />
                     {/* <button type="button" className="close" aria-label="Close" onClick={() => history.push("/")} >
                         <span aria-hidden="true" >&times;</span>
                     </button><br /> */}

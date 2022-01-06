@@ -5,7 +5,7 @@ import { useHistory } from "react-router";
 import axios from 'axios';
 import serverURL from '../serverURL';
 import Modal from "react-bootstrap/Modal";
-import Button from 'react-bootstrap/Button';
+import {Button,CloseButton} from 'react-bootstrap';
 import { useContext } from "react";
 import { GroupContext } from "../App";
 import { useErrorHandler } from "react-error-boundary";
@@ -104,6 +104,8 @@ const SignUp = () => {
         <div className="auth-wrapper">
             <div className="auth-inner">
                 <form onSubmit={formik.handleSubmit} >
+                    <CloseButton onClick={() => history.goBack()}/>
+                    <h3>Sign Up</h3>
                     <div className="form-group">
                         <label>Name</label>
                         <input type="text" id="name" name="name" className="form-control"

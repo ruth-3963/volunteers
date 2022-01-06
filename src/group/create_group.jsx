@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
 import { useContext } from 'react';
-import Button from 'react-bootstrap/Button';
+import {Button,CloseButton} from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import { useErrorHandler } from 'react-error-boundary';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -42,6 +42,7 @@ const CreateGroup = () => {
     });
     return (<div className="auth-wrapper">
         <div className="auth-inner">
+        <CloseButton onClick={() => history.goBack()}/>
             <h3>Create group</h3>
             <Form onSubmit={formik.handleSubmit}>
                 <Form.Group>

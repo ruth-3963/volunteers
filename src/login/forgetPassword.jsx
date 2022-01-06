@@ -11,6 +11,7 @@ const ForgetPassword = () => {
     const [showError, setShowError] = useState(false);
     const [showNullError, setShowNullError] = useState(false);
     const [messageFromServer, setMessageFromServer] = useState("");
+    const history = useHistory();
     const SendEmail = async (e) => {
         e.preventDefault();
         if (email === "") {
@@ -41,8 +42,8 @@ const ForgetPassword = () => {
         <div className="auth-wrapper">
             <div className="auth-inner">
                 <form onSubmit={SendEmail}>
-                    <CloseButton />
-                    <h3>Reset password</h3>
+                <CloseButton onClick={() => history.goBack()}/>
+                                    <h3>Reset password</h3>
                     <div>
                         <div className="form-group">
                             <label>Email</label>
