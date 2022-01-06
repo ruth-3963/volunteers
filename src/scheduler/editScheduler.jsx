@@ -27,21 +27,22 @@ const EditScheduler = () => {
     const [group, setGroup] = useState(location.state.group);
     const history = useHistory();
     const sendData = async () => {
-        const events = calendar.current.eventsData;
-        const result = await axios.put("" + serverURL + "api/Event", {
-            events: events,
-            group: group
-        });
-        console.log(result);
-        debugger;
-        setGroup({ ...group, ['events']:JSON.stringify(events) });
-
-        //calendar.current.eventsData = [];
-        calendar.current.eventsData.forEach(event => {
-            calendar.current.deleteEvent(event.Id);
-        });
-        history.push({ pathname: "/schedule", state: { events: group.events, group: group } });
-
+        try {
+            const events = calendar.current.eventsData;
+            const result = await axios.put("" + serverURL + "api/Event", {
+                events: events,
+                group: group
+            });
+            console.log(result);
+            setGroup({ ...group, ['events']: JSON.stringify(events) });
+            calendar.current.eventsData.forEach(event => {
+                calendar.current.deleteEvent(event.Id);
+            });
+            history.push({ pathname: "/schedule", state: { events: group.events, group: group } });
+        }
+        catch (err) {
+            handleError(err)
+        }
     }
     const editorTemplate = (props) => {
         return (props !== undefined ? <table className="custom-event-editor" value="123" style={{ width: '100%', cellpadding: '5' }}><tbody>
@@ -51,28 +52,28 @@ const EditScheduler = () => {
             </td></tr>
 
             <tr><td className="e-textlabel">From</td><td colSpan={4}>
-                <TimePickerComponent  format={{ skeleton: 'Hms' }} />
+                <TimePickerComponent format={{ skeleton: 'Hms' }} />
             </td></tr>
             <tr><td className="e-textlabel">To</td><td colSpan={4}>
                 <DateTimePickerComponent format='dd/MM/yy hh:mm a' id="EndTime" data-name="EndTime" value={new Date(props.endTime || props.EndTime)} className="e-field"></DateTimePickerComponent>
             </td></tr>
         </tbody></table> : <div></div>);
     }
-    const header = () =>{
-        return ( <><button id="close" className="e-close e-close-icon e-icons" title="Close" onClick={()=>calendar.current.closeQuickInfoPopup()}/>
-        <h4>add volunteer time</h4></>);
+    const header = () => {
+        return (<><button id="close" className="e-close e-close-icon e-icons" title="Close" onClick={() => calendar.current.closeQuickInfoPopup()} />
+            <h4>add volunteer time</h4></>);
 
     }
-    const content = () =>{
+    const content = () => {
         return (<div>
-            <TimePickerComponent  placeholder="from" format={{ skeleton: 'Hms' }} />
+            <TimePickerComponent placeholder="from" format={{ skeleton: 'Hms' }} />
             <TimePickerComponent placeholder="to" format={{ skeleton: 'Hms' }} />
         </div>);
     }
-     
+
     return (<div><ButtonComponent onClick={() => sendData()} variant="link" >save schedule</ButtonComponent>
         <ScheduleComponent ref={calendar} width='100%' height='550px' eventSettings={{ dataSource: JSON.parse(group.events) }}
-            editorTemplate={(e) => editorTemplate(e)} quickInfoTemplates={{ header: header, content: content}}>       
+            editorTemplate={(e) => editorTemplate(e)} quickInfoTemplates={{ header: header, content: content }}>
             <Inject services={[Day, Week, WorkWeek, Month]} />
         </ScheduleComponent></div >);
 

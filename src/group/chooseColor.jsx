@@ -8,40 +8,52 @@ import axios from 'axios';
 import serverUrl from '../serverURL'
 import { useEffect, useContext } from 'react';
 import { GroupContext, UserContext } from '../App.js'
+import { useErrorHandler } from 'react-error-boundary';
 const ChooseColor = (props) => {
+    const errorHandler = useErrorHandler();
     const { group, setGroup } = useContext(GroupContext);
     const { user, setUser } = useContext(UserContext);
     const [value, setValue] = useState('');
     const [allGroupUsersColor, setAllGroupUsersColor] = useState([]);
     const handleClose = () => { props.setShow(false); };
     useEffect(async () => {
-        const allUsersColors = await axios.get("" + serverUrl + "getAllUsersColors", {
-            params: {
-                groupId: props.group.id
+        try {
+            const allUsersColors = await axios.get("" + serverUrl + "getAllUsersColors", {
+                params: {
+                    groupId: props.group.id
+                }
+            });
+            if (allUsersColors.data.length > 0) {
+                const colorsWithFilter = CSS_COLOR_NAMES.filter(c => !allUsersColors.data.includes(c));
+                setAllGroupUsersColor(colorsWithFilter);
             }
-        });
-        if (allUsersColors.data.length > 0) {
-            const colorsWithFilter = CSS_COLOR_NAMES.filter(c => !allUsersColors.data.includes(c));
-            setAllGroupUsersColor(colorsWithFilter);
+            else {
+                setAllGroupUsersColor(CSS_COLOR_NAMES);
+            }
         }
-        else {
-            setAllGroupUsersColor(CSS_COLOR_NAMES);
+        catch (err) {
+            errorHandler(err);
         }
     }, []);
     const submit = async () => {
         if (props.color) {
-            const result = await axios.put("" + serverUrl + "api/usersToGroups", {
-                user_id: user.id, group_id: props.group.id, color: props.color
-            });
-            if (result.data) {
-                if (group.id === props.group.id)
-                    localStorage.setItem("userToGroup", JSON.stringify(result.data));
-                if (props.setOwnerData)
-                    props.setOwnerData([{ Id: user.id, OwnerColor: props.color, OwnerText: user.name }]);
-                else {
-                    props.setChangeGroup(!props.changeGroup);
+            try {
+                const result = await axios.put("" + serverUrl + "api/usersToGroups", {
+                    user_id: user.id, group_id: props.group.id, color: props.color
+                });
+                if (result.data) {
+                    if (group.id === props.group.id)
+                        localStorage.setItem("userToGroup", JSON.stringify(result.data));
+                    if (props.setOwnerData)
+                        props.setOwnerData([{ Id: user.id, OwnerColor: props.color, OwnerText: user.name }]);
+                    else {
+                        props.setChangeGroup(!props.changeGroup);
+                    }
+                    props.setShow(false);
                 }
-                props.setShow(false);
+            }
+            catch (err) {
+                errorHandler(err);
             }
         }
     }

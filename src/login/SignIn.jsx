@@ -5,8 +5,9 @@ import Button from 'react-bootstrap/Button';
 import CloseButton from 'react-bootstrap/CloseButton'
 import Form from 'react-bootstrap/Form';
 import { useFormik } from 'formik';
+import { useErrorHandler } from 'react-error-boundary';
 import axios from 'axios';
-import React, { useContext , useCallback, useEffect, useRef, useState } from 'react';
+import React, { useContext, useCallback, useEffect, useRef, useState } from 'react';
 import serverURL from '../serverURL';
 import Modal from "react-bootstrap/Modal";
 import { useLocationState } from 'react-router-use-location-state';
@@ -14,9 +15,10 @@ import { GroupContext, UserContext, userToGroupContext } from '../App';
 const SignIn = (props) => {
     const history = useHistory();
     const location = useLocation();
-    const {user , setUser} = useContext(UserContext);
-    const {group , setGroup} = useContext(GroupContext);
-    const {userToGroup , setUserToGroup} = useContext(userToGroupContext);
+    const handleError = useErrorHandler();
+    const { user, setUser } = useContext(UserContext);
+    const { group, setGroup } = useContext(GroupContext);
+    const { userToGroup, setUserToGroup } = useContext(userToGroupContext);
     const [listOfGroups, setListOfGroups] = useState([]);
     const [show, setShow] = useState(false);
     const handleShow = () => { setShow(true) }
@@ -36,45 +38,55 @@ const SignIn = (props) => {
                 formik.values.emailValid = "please type email";
             }
             else {
-                formik.values.emailValid = "";
-                const password = values.password;
-                const result = await axios.get("" + serverURL + "api/User", {
-                    params: {
-                        email: email,
-                        password: password
+                try {
+                    formik.values.emailValid = "";
+                    const password = values.password;
+                    const result = await axios.get("" + serverURL + "api/User", {
+                        params: {
+                            email: email,
+                            password: password
+                        }
+                    });
+                    if (result.data) {
+                        let newUser = result.data;
+                        if (newUser.email && newUser.password) {
+                            localStorage.setItem("user", JSON.stringify(newUser));
+                            setUser(newUser);
+                            const groups = await axios.get("" + serverURL + "GetByManager", {
+                                params: {
+                                    id: result.data.id
+                                }
+                            });
+                            setListOfGroups(groups.data);
+                            props.setIsLogin(true);
+                        }
+                        if (newUser.email && !newUser.password) {
+                            newUser.password = password;
+                            history.push({ pathname: "/signup", state: newUser });
+                        }
                     }
-                });
-                if (result.data) {
-                    let newUser = result.data;
-                    if (newUser.email && newUser.password) {
-                        localStorage.setItem("user", JSON.stringify(newUser));
-                        setUser(newUser);
-                        const groups = await axios.get("" + serverURL + "GetByManager", {
-                            params: {
-                                id: result.data.id
-                            }
-                        });
-                        setListOfGroups(groups.data);
-                        props.setIsLogin(true);
-                    }
-                    if (newUser.email && !newUser.password) {
-                        newUser.password = password;
-                        history.push({ pathname: "/signup", state: newUser });
-                    }
+                    else alert("your email or password is incorrect");
                 }
-                else alert("your email or password is incorrect");
+                catch (e) {
+                    handleError(e)
+                }
             }
         },
     });
     useEffect(async () => {
         if (location && location.state && location.state.from && location.state.from.pathname === "/signup") {
-            const groups = await axios.get("" + serverURL + "GetByManager", {
-                params: {
-                    id: location.state.user.id,
-                }
-            });
-            setListOfGroups(groups.data);
-            props.setIsLogin(true);
+            try {
+                const groups = await axios.get("" + serverURL + "GetByManager", {
+                    params: {
+                        id: location.state.user.id,
+                    }
+                });
+                setListOfGroups(groups.data);
+                props.setIsLogin(true);
+            }
+            catch (err) {
+                handleError(err);
+            }
         }
 
     }, []);
@@ -87,34 +99,38 @@ const SignIn = (props) => {
         else {
             const index = formikGroup ? listOfGroups.findIndex(g => g.name === formikGroup) : 0;
             let currGroup = listOfGroups[index];
-            const resultGroup = await axios.get("" + serverURL + "api/Group", {
-                params: {
-                    id: currGroup.id,
+            try {
+                const resultGroup = await axios.get("" + serverURL + "api/Group", {
+                    params: {
+                        id: currGroup.id,
+                    }
+                });
+                currGroup = resultGroup.data;
+                setGroup(resultGroup.data);
+                localStorage.setItem("group", JSON.stringify(resultGroup.data));
+                const resultUsersToGroups = await axios.get("" + serverURL + "api/UsersToGroups", {
+                    params: {
+                        groupId: currGroup.id,
+                        userId: user.id
+                    }
+                });
+                setUserToGroup(resultUsersToGroups.data)
+                localStorage.setItem("userToGroup", JSON.stringify(resultUsersToGroups.data));
+                if (!resultUsersToGroups.data.color) {
+                    history.push({ pathname: "/chooseEvents/" + currGroup.id });
+                    return;
                 }
-            });
-            currGroup = resultGroup.data;
-            setGroup(resultGroup.data);
-            localStorage.setItem("group", JSON.stringify(resultGroup.data));
-            const resultUsersToGroups = await axios.get("" + serverURL + "api/UsersToGroups", {
-                params: {
-                    groupId: currGroup.id,
-                    userId: user.id
+                if (resultGroup.data.events) {
+                    // history.push({ pathname: "/schedule/" + group.id , state: { group: resultGroup.data, events: JSON.parse(resultGroup.data.events) } });
+                    history.push("/schedule/" + currGroup.id);
+                    return;
                 }
-            });
-            setUserToGroup(resultUsersToGroups.data)
-            localStorage.setItem("userToGroup", JSON.stringify(resultUsersToGroups.data));
-            if(!resultUsersToGroups.data.color){
-                history.push({ pathname: "/chooseEvents/" + currGroup.id });
-                return;
-            }
-            if (resultGroup.data.events){
-               // history.push({ pathname: "/schedule/" + group.id , state: { group: resultGroup.data, events: JSON.parse(resultGroup.data.events) } });
-                history.push("/schedule/" + currGroup.id);
-                return;
-            }
-           // history.push({ pathname: "editSchedule/" + group.id });
-            else {
-                handleShow();
+                // history.push({ pathname: "editSchedule/" + group.id });
+                else {
+                    handleShow();
+                }
+            } catch (err) {
+                handleError(err);
             }
         };
     }
@@ -122,7 +138,7 @@ const SignIn = (props) => {
         <div className="auth-wrapper">
             <div className="auth-inner">
                 <form onSubmit={formik.handleSubmit} >
-                    <CloseButton/>
+                    <CloseButton />
                     {/* <button type="button" className="close" aria-label="Close" onClick={() => history.push("/")} >
                         <span aria-hidden="true" >&times;</span>
                     </button><br /> */}
@@ -134,7 +150,8 @@ const SignIn = (props) => {
                         <span id="emailValid" className="validMassage">{formik.values.emailValid}</span>
                     </div>
                     <div className="form-group">
-                        <label>Password</label><Button variant="link" > (forget password)</Button>
+                        <label>Password</label>
+                        <Link to="/forgetPassword"  > (forget password)</Link>
                         <input type="password" id="password" name="password" className="form-control"
                             onChange={formik.handleChange} value={formik.values.password} disabled={props.isLogin} />
                     </div>
@@ -167,7 +184,7 @@ const SignIn = (props) => {
                     <Button variant="secondary" onClick={() => history.push(`/editSchedule${group.id}`)}>
                         Edit Schedule
                     </Button>
-                    <Button variant="primary" onClick={() => { history.push(`/addVolunteer${group.id}`)}}>
+                    <Button variant="primary" onClick={() => { history.push(`/addVolunteers${group.id}`) }}>
                         Add volunteers
                     </Button>
                 </Modal.Footer>

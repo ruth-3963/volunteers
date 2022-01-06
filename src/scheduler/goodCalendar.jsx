@@ -26,6 +26,7 @@ import Alert from 'react-bootstrap/esm/Alert';
 import Group from '../group/group';
 import { useContext } from 'react';
 import { GroupContext, UserContext, userToGroupContext } from '../App';
+import { useErrorHandler } from 'react-error-boundary';
 
 const Calendar = (props) => {
     const { id } = useParams();
@@ -37,19 +38,24 @@ const Calendar = (props) => {
     const { user, setUser } = useContext(UserContext);
     const { group, setGroup } = useContext(GroupContext);
     const { userToGroup, setuserToGroup } = useContext(userToGroupContext);
-
+    const handleError = useErrorHandler();
     useEffect(async () => {
         if (group) {
-            let result = await axios.get("" + serverURL + "api/Event/" + group.id);
-            if (result.data) {
-                setEvents(result.data);
-            }
-            result = await axios.get("" + serverURL + "getOwnerData", {
-                params: {
-                    groupId: group.id,
+            try {
+                let result = await axios.get("" + serverURL + "api/Event/" + group.id);
+                if (result.data) {
+                    setEvents(result.data);
                 }
-            });
-            setOwnerData(result.data);
+                result = await axios.get("" + serverURL + "getOwnerData", {
+                    params: {
+                        groupId: group.id,
+                    }
+                });
+                setOwnerData(result.data);
+            }
+            catch (err) {
+                handleError(err)
+            }
         }
     }, [group]);
     const getMonthCellContent = (date) => {
@@ -124,34 +130,34 @@ const Calendar = (props) => {
         // React.createElement()
     }
     return (
-    <div>
-        
-        {userToGroup && userToGroup.is_manager ?
-            <ButtonComponent onClick={(e) => { history.push(`./../editSchedule/${userToGroup.group_id}`) }}>edit schedule</ButtonComponent> : ""}
-        {userToGroup && <ButtonComponent  onClick={(e) => { history.push(`./../chooseEvents/${userToGroup.group_id}`)}}>Choose events</ButtonComponent>}
- 
-        <ScheduleComponent ref={calendar} width='100%' height='100%'
-            //  quickInfoTemplates={(props) => {
-            //     return (<div className="quick-info-header">
-            //         <div className="quick-info-header-content" >
-            //             <div className="quick-info-title"></div>
-            //         </div>
-            //     </div>)
+        <div>
 
-            // }}
-            //  quickInfoTemplates={{
-            //         footer: (e) => footerTemplate(e)
-            //  }}
-            eventSettings={{ allowAdding: false, allowDeleting: false, allowEditing: false, dataSource: events }} >
-            <ResourcesDirective>
-                <ResourceDirective field='OwnerId' title='Owner' name='Owners'
-                    dataSource={ownerData}
-                    textField="OwnerText" idField='Id' colorField='OwnerColor'>
-                </ResourceDirective>
-            </ResourcesDirective>
-            <Inject services={[Day, Week, WorkWeek, Month, Agenda]} />
-        </ScheduleComponent>
-       
+            {userToGroup && userToGroup.is_manager ?
+                <ButtonComponent onClick={(e) => { history.push(`./../editSchedule/${userToGroup.group_id}`) }}>edit schedule</ButtonComponent> : ""}
+            {userToGroup && <ButtonComponent onClick={(e) => { history.push(`./../chooseEvents/${userToGroup.group_id}`) }}>Choose events</ButtonComponent>}
+
+            <ScheduleComponent ref={calendar} width='100%' height='100%'
+                //  quickInfoTemplates={(props) => {
+                //     return (<div className="quick-info-header">
+                //         <div className="quick-info-header-content" >
+                //             <div className="quick-info-title"></div>
+                //         </div>
+                //     </div>)
+
+                // }}
+                //  quickInfoTemplates={{
+                //         footer: (e) => footerTemplate(e)
+                //  }}
+                eventSettings={{ allowAdding: false, allowDeleting: false, allowEditing: false, dataSource: events }} >
+                <ResourcesDirective>
+                    <ResourceDirective field='OwnerId' title='Owner' name='Owners'
+                        dataSource={ownerData}
+                        textField="OwnerText" idField='Id' colorField='OwnerColor'>
+                    </ResourceDirective>
+                </ResourcesDirective>
+                <Inject services={[Day, Week, WorkWeek, Month, Agenda]} />
+            </ScheduleComponent>
+
 
         </div>);
 }

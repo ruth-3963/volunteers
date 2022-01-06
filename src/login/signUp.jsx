@@ -8,6 +8,7 @@ import Modal from "react-bootstrap/Modal";
 import Button from 'react-bootstrap/Button';
 import { useContext } from "react";
 import { GroupContext } from "../App";
+import { useErrorHandler } from "react-error-boundary";
 
 
 const SignUp = () => {
@@ -15,9 +16,9 @@ const SignUp = () => {
     const [matchPassword, setMatchPassword] = useState(false);
     const [show, setShow] = useState(false);
     const [listOfGroups, setListOfGroups] = useState(null);
-    const {group, setGroup} = useContext(GroupContext);
+    const { group, setGroup } = useContext(GroupContext);
     const [events, setEvents] = useState([]);
-
+    const handleError = useErrorHandler();
     const formik = useFormik({
         initialValues: {
             name: '',
@@ -34,20 +35,25 @@ const SignUp = () => {
                 user.email = values.email;
                 user.password = values.password;
                 user.phone = values.phone;
-                const result = await axios.post("" + serverURL + "api/User", {
-                    name: user.name,
-                    password: user.password,
-                    phone: user.phone,
-                    email: user.email
-                });
-                localStorage.setItem("user", JSON.stringify(result.data));
-                const groups = await axios.get("" + serverURL + "GetByManager", {
-                    params: {
-                        id: result.data.id,
-                    }
-                });
-                setListOfGroups(groups.data);
-                setShow(true);
+                try {
+                    const result = await axios.post("" + serverURL + "api/User", {
+                        name: user.name,
+                        password: user.password,
+                        phone: user.phone,
+                        email: user.email
+                    });
+                    localStorage.setItem("user", JSON.stringify(result.data));
+                    const groups = await axios.get("" + serverURL + "GetByManager", {
+                        params: {
+                            id: result.data.id,
+                        }
+                    });
+                    setListOfGroups(groups.data);
+                    setShow(true);
+                }
+                catch (err) {
+                    handleError(err);
+                }
             }
             else {
                 alert("the passwords doesnt match");
@@ -67,24 +73,29 @@ const SignUp = () => {
     const submitAllValue = async () => {
         const formikGroup = formik.values.group;
         if (formikGroup === "create new group" || !listOfGroups.length) {
-            history.push({ pathname: "/createGroup"});
+            history.push({ pathname: "/createGroup" });
         }
         else {
             const index = formikGroup ? listOfGroups.findIndex(g => g.name === formikGroup) : 0;
             const newGroup = listOfGroups[index];
-            const result = await axios.get("" + serverURL + "api/Group", {
-                params: {
-                    id: newGroup.id,
+            try {
+                const result = await axios.get("" + serverURL + "api/Group", {
+                    params: {
+                        id: newGroup.id,
+                    }
+                });
+                setGroup(result.data);
+                localStorage.setItem("group", JSON.stringify(result.data));
+                if (result.data.events) {
+                    setEvents(JSON.parse(result.data.events));
+                    history.push({ pathname: `/schedule${group.id}` });
                 }
-            });
-            setGroup(result.data);
-            localStorage.setItem("group", JSON.stringify(result.data));
-            if (result.data.events) {
-                setEvents(JSON.parse(result.data.events));
-                history.push({ pathname: `/schedule${group.id}` });
+                else {
+                    setShow(true);
+                }
             }
-            else {
-                setShow(true);
+            catch (err) {
+                handleError(err);
             }
         };
     }
@@ -107,7 +118,7 @@ const SignUp = () => {
                     <div className="form-group">
                         <label>Password</label>
                         <input type="password" id="password" name="password" className="form-control"
-                             onChange={formik.handleChange} value={formik.values.password} />
+                            onChange={formik.handleChange} value={formik.values.password} />
                     </div>
 
                     <div className="form-group">
@@ -142,7 +153,7 @@ const SignUp = () => {
                         <option key={listOfGroups ? listOfGroups.length : 0}>create new group</option>
                     </select>
 
-                
+
                     <Button variant="primary" block onClick={() => submitAllValue()}>Submit</Button>
                 </Modal.Footer>
             </Modal>

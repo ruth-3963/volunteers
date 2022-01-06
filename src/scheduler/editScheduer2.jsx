@@ -29,6 +29,7 @@ import { GroupContext, UserContext, userToGroupContext } from "./../App"
 import { BsImageFill } from 'react-icons/bs';
 import { Description } from '@material-ui/icons';
 import ChooseDate from './chooseDate';
+import { useErrorHandler } from 'react-error-boundary';
 const EditScheduler2 = () => {
   const calendar = useRef();
   const { id } = useParams();
@@ -43,10 +44,11 @@ const EditScheduler2 = () => {
   const { userToGroup, setUserToGroup } = useContext(userToGroupContext);
   const { group, setGroup } = useContext(GroupContext);
   const [showDateAlert, setShowDateAlert] = useState(false)
+  const handleError = useErrorHandler();
   const [rangeDates, setRangeDates] = useStateWithCallback([], value => {
     if (value.length) {
       const eventsToCalc = calendar.current.eventsData.
-                            filter(e => e.StartTime > Date.parse(value[0]) && e.EndTime < Date.parse(value[1]));
+        filter(e => e.StartTime > Date.parse(value[0]) && e.EndTime < Date.parse(value[1]));
       setShowDateAlert(false);
       CalcEvents(eventsToCalc);
     }
@@ -60,27 +62,36 @@ const EditScheduler2 = () => {
   });
 
   useEffect(async () => {
-    let result = await axios.get("" + serverURL + "api/Event/" + id);
-    if (result.data) {
-      setEvents(result.data);
-    }
-    result = await axios.get("" + serverURL + "getOwnerData", {
-      params: {
-        groupId: id,
+    try {
+      let result = await axios.get("" + serverURL + "api/Event/" + id);
+      if (result.data) {
+        setEvents(result.data);
       }
-    });
-    setOwnerData(result.data);
+      result = await axios.get("" + serverURL + "getOwnerData", {
+        params: {
+          groupId: id,
+        }
+      });
+      setOwnerData(result.data);
+    } catch (err) {
+      handleError(err)
+    }
   }, []);
 
   const sendData = async () => {
-    await axios.post("" + serverURL + "api/Event", { events: newEvents, group: group });
-    const newUpdate = updateEvents.map(({ Id, OwnerId, EndTimezone, IsAllDay, RecurrenceRule, StartTimezone, ...allProp }) => allProp);
-    await axios.put("" + serverURL + "UpdateEvents/", newUpdate);
-    const newDel = deletedEvents.map(({ Id, OwnerId, ...allProp }) => allProp);
-    await axios.delete("" + serverURL + "api/Event", { data: newDel }, { "Authorization": "***" });
-    const result = await axios.get("" + serverURL + "api/Event", { params: { id: group.id } });
-    setEvents(result.data);
-    setShowToast(true);
+    try {
+      await axios.post("" + serverURL + "api/Event", { events: newEvents, group: group });
+      const newUpdate = updateEvents.map(({ Id, OwnerId, EndTimezone, IsAllDay, RecurrenceRule, StartTimezone, ...allProp }) => allProp);
+      await axios.put("" + serverURL + "UpdateEvents/", newUpdate);
+      const newDel = deletedEvents.map(({ Id, OwnerId, ...allProp }) => allProp);
+      await axios.delete("" + serverURL + "api/Event", { data: newDel }, { "Authorization": "***" });
+      const result = await axios.get("" + serverURL + "api/Event", { params: { id: group.id } });
+      setEvents(result.data);
+      setShowToast(true);
+    }
+    catch (err) {
+      handleError(err);
+    }
   }
   const onActionComplete = (args) => {
 
@@ -133,10 +144,15 @@ const EditScheduler2 = () => {
     //   EventsToCalc = calendar.current.filter(e => e.StartTime > rangeDates[0] && e.EndTime < rangeDates[1]);
     // }
     if (eventsToCalc && eventsToCalc.length) {
-      const result = await axios.post("" + serverURL + "calcEvents", {
-        events: eventsToCalc
-      })
-      setEvents(result.data);
+      try {
+        const result = await axios.post("" + serverURL + "calcEvents", {
+          events: eventsToCalc
+        })
+        setEvents(result.data);
+      }
+      catch (err) {
+        handleError(err)
+      }
     }
     else {
       alert("no events to calc")
@@ -149,8 +165,8 @@ const EditScheduler2 = () => {
     <ChooseDate
       setShowDateAlert={(val) => setShowDateAlert(val)}
       showDateAlert={showDateAlert}
-      calendar = {calendar.current}
-      calc = {(val) => CalcEvents(val)}
+      calendar={calendar.current}
+      calc={(val) => CalcEvents(val)}
     />
     <ToastContainer style={{ position: 'relative' }} className="p-3" position="top-end">
       <Toast onClose={() => setShowToast(false)} show={showToast}

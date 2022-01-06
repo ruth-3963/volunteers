@@ -97,14 +97,19 @@ export const Profile = () => {
 
     }, []);
     useEffect(async () => {
-        const groups = await axios.get("" + serverUrl + "GetByManager", {
-            params: {
-                id: user.id,
-            }
-        });
-        console.log(changeGroup);
-        setUserGroup(groups.data);
-        console.log(changeGroup);
+        try{
+            const groups = await axios.get("" + serverUrl + "GetByManager", {
+                params: {
+                    id: user.id,
+                }
+            });
+            console.log(changeGroup);
+            setUserGroup(groups.data);
+            console.log(changeGroup);
+        }
+        catch(err){
+            errorHandler(err)
+        }
     }, [changeGroup]);
     const changeColor = (group) => {
 
