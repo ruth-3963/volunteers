@@ -6,11 +6,14 @@ import { useEffect } from "react";
 import serverURL from "../serverURL";
 import axios from "axios";
 import { useErrorHandler } from "react-error-boundary";
+import { useContext } from "react";
+import { UserContext } from "../App";
 
 export const ResetPassword = () => {
 
+    const {setUser} = useContext(UserContext);
     const { token } = useParams();
-    const [userEmail, setUserEmail] = useState('');
+    const [userToUpdate, setUserToUpdate] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [updated, setUpdated] = useState(false);
@@ -26,12 +29,15 @@ export const ResetPassword = () => {
     const updatePassword = (e) => {
         e.preventDefault();
         axios.put(serverURL + "updatePasswordViaEmail", {
-            email: userEmail,
+            email: userToUpdate.email,
             password: password
         }).then(response => {
             if (response.data === "password updated") {
                 setUpdated(true);
                 setError(false);
+                userToUpdate.password = password;
+                localStorage.setItem("user",JSON.stringify(userToUpdate));
+                setUser(userToUpdate);
             }
             else {
                 setUpdated(false);
@@ -52,7 +58,7 @@ export const ResetPassword = () => {
             },
         }).then(response => {
             if (response.data) {
-                setUserEmail(response.data.email);
+                setUserToUpdate(response.data);
                 setUpdated(false);
                 setIsLoading(false);
                 setError(false);
