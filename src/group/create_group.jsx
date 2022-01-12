@@ -42,7 +42,7 @@ const CreateGroup = () => {
     });
     return (<div className="auth-wrapper">
         <div className="auth-inner">
-        <CloseButton onClick={() => history.goBack()}/>
+        <CloseButton onClick={() => history.push("/home")}/>
             <h3>Create group</h3>
             <Form onSubmit={formik.handleSubmit}>
                 <Form.Group>

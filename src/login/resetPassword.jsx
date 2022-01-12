@@ -76,7 +76,7 @@ export const ResetPassword = () => {
         return (
             <div className="auth-wrapper">
                 <div className="auth-inner">
-                <CloseButton onClick={() => history.goBack()}/>
+                <CloseButton onClick={() => history.push("/home")}/>
                     <div style={loading}>
                         <h5><b>Problem resetting password. Please send another reset link.</b></h5>
                         <Link to="/" style={{float:'right'}}>Go Home</Link>

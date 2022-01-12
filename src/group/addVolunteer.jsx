@@ -46,7 +46,7 @@ const AddVolunteer = () => {
     }
     return (<div className="auth-wrapper">
         <div className="auth-inner">
-        <CloseButton onClick={() => history.goBack()}/>
+        <CloseButton onClick={() => history.push("/home")}/>
 
             <div>
                 <ToastContainer style={{ position: 'relative' }} className="p-3" position="top-end">

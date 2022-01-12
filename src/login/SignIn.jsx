@@ -90,7 +90,9 @@ const SignIn = (props) => {
         }
 
     }, []);
-
+    const tryElement = () => {
+        return(<div><p>aaaa</p><button>btn</button></div>);
+    }
     const submitAllValue = async () => {
         const formikGroup = formik.values.group;
         if (formikGroup === "create new group" || !listOfGroups.length) {
@@ -116,19 +118,26 @@ const SignIn = (props) => {
                 });
                 setUserToGroup(resultUsersToGroups.data)
                 localStorage.setItem("userToGroup", JSON.stringify(resultUsersToGroups.data));
-                if (!resultUsersToGroups.data.color) {
-                    history.push({ pathname: "/chooseEvents/" + currGroup.id });
-                    return;
+                if (!resultGroup.data.events || !resultGroup.data.events.length) {
+                    if (resultUsersToGroups.data.is_manager) {
+                        handleShow();
+                    }
+                    else{
+                        alert("the manager of this group nt yet declare events")
+                    }
                 }
-                if (resultGroup.data.events) {
-                    // history.push({ pathname: "/schedule/" + group.id , state: { group: resultGroup.data, events: JSON.parse(resultGroup.data.events) } });
-                    history.push("/schedule/" + currGroup.id);
-                    return;
-                }
-                // history.push({ pathname: "editSchedule/" + group.id });
                 else {
-                    handleShow();
+                    if (!resultUsersToGroups.data.color) {
+                        history.push({ pathname: "/chooseEvents/" + currGroup.id });
+                        return;
+                    }
+                    if (resultGroup.data.events) {
+                        // history.push({ pathname: "/schedule/" + group.id , state: { group: resultGroup.data, events: JSON.parse(resultGroup.data.events) } });
+                        history.push("/schedule/" + currGroup.id);
+                        return;
+                    }
                 }
+
             } catch (err) {
                 handleError(err);
             }
@@ -138,7 +147,7 @@ const SignIn = (props) => {
         <div className="auth-wrapper">
             <div className="auth-inner">
                 <form onSubmit={formik.handleSubmit} >
-                    <CloseButton onClick={() => history.goBack()} />
+                    <CloseButton onClick={() => history.push("/home")} />
                     {/* <button type="button" className="close" aria-label="Close" onClick={() => history.push("/")} >
                         <span aria-hidden="true" >&times;</span>
                     </button><br /> */}

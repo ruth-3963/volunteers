@@ -42,7 +42,7 @@ const ForgetPassword = () => {
         <div className="auth-wrapper">
             <div className="auth-inner">
                 <form onSubmit={SendEmail}>
-                <CloseButton onClick={() => history.goBack()}/>
+                <CloseButton onClick={() => history.push("/home")}/>
                                     <h3>Reset password</h3>
                     <div>
                         <div className="form-group">

@@ -104,7 +104,7 @@ const SignUp = () => {
         <div className="auth-wrapper">
             <div className="auth-inner">
                 <form onSubmit={formik.handleSubmit} >
-                    <CloseButton onClick={() => history.goBack()}/>
+                    <CloseButton onClick={() => history.push("/home")}/>
                     <h3>Sign Up</h3>
                     <div className="form-group">
                         <label>Name</label>
