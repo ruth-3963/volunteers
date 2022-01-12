@@ -1,10 +1,12 @@
-import React, { createContext, useState, useEffect, useMemo, useReducer } from 'react'
+import React, { createContext, useState, useEffect, useMemo, useReducer } from 'react';
+import ReactDOMServer from 'react-dom/server';
 import { ErrorBoundary } from 'react-error-boundary'
 import TopBar from './components/topBar'
 import Calendar from './scheduler/goodCalendar';
 import SignIn from './login/SignIn';
 import SignUp from './login/signUp';
 import { Profile } from './group/profile/profile';
+import {Home} from './components/home'
 import {
   Switch,
   Route,
@@ -89,6 +91,7 @@ const App = () => {
                         ? <Profile/> : history.goBack();
                 }} />
                 <Route exect path="/signup" component={SignUp} />
+                <Route exect path="/home" component={Home}/>
                 <Route exect path="/createGroup" component={CreateGroup} />
                 <Route exect path="/group" component={Group} />
                 <Route exect path="/addVolunteers" component={AddVolunteer} />
