@@ -1,29 +1,29 @@
-import React, { createContext, useState, useEffect, useMemo, useReducer } from 'react';
-import ReactDOMServer from 'react-dom/server';
+import React, { createContext, useState, useEffect, useMemo, useReducer, useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary'
 import TopBar from './components/topBar'
-import Calendar from './scheduler/goodCalendar';
-import SignIn from './login/SignIn';
-import SignUp from './login/signUp';
-import { Profile } from './group/profile/profile';
-import {Home} from './components/home'
+import { About } from './components/about'
+import Calendar from './components/scheduler/calendar';
+import SignIn from './components/login/SignIn';
+import SignUp from './components/login/signUp';
+import { Profile } from './components/profile/profile';
+import { Home } from './components/home/home'
 import {
   Switch,
   Route,
   Link
 } from "react-router-dom";
 import { Fallback } from './components/fallBack';
-import CreateGroup from './group/create_group';
-import Group from './group/group';
-import AddVolunteer from './group/addVolunteer';
-import EditScheduler2 from './scheduler/editScheduer2';
-import ChooseEvents from './scheduler/chooseEvents';
+import CreateGroup from './components/group/create_group';
+import Group from './components/group/group';
+import AddVolunteer from './components/group/addVolunteer';
+import EditScheduler2 from './components/scheduler/editScheduer';
+import ChooseEvents from './components/scheduler/chooseEvents';
 import ProtectedRoute from './components/protectedRoute';
-import { ResetPassword } from './login/resetPassword';
+import { ResetPassword } from './components/login/resetPassword';
 import Button from 'react-bootstrap/esm/Button';
 import { useHistory, useLocation, Redirect, prot } from "react-router-dom";
 import { PortableWifiOffRounded } from '@material-ui/icons';
-import ForgetPassword from './login/forgetPassword';
+import ForgetPassword from './components/login/forgetPassword';
 export const UserContext = React.createContext({ user: {}, setUser: () => { } });
 export const GroupContext = React.createContext({ group: {}, setGroup: () => { } })
 export const userToGroupContext = React.createContext({ userToGroup: {}, setUserToGroup: () => { } });
@@ -41,7 +41,6 @@ const App = () => {
   const history = useHistory();
   const forceUpdate = useReducer(() => ({}))[1];
   useEffect(() => {
-    debugger;
     const localGroup = JSON.parse(localStorage.getItem("group"));
     const localUser = JSON.parse(localStorage.getItem("user"));
     const localUserToGroup = JSON.parse(localStorage.getItem("userToGroup"));
@@ -78,20 +77,19 @@ const App = () => {
                     <Redirect push to="/signin" />}
                 </Route>
 
-                <Route exect path="/signin"
-                  render={() =>
-
-                    <SignIn isLogin={isLogin} setIsLogin={(val) => setIsLogin(val)} />
+                <Route exect path="/signin/:email?/"
+                  render={(props) =>
+                    <SignIn {...props} isLogin={isLogin} setIsLogin={(val) => setIsLogin(val)} />
 
                   }
                 />
-                <Route path="/profile/:id"  render={({match,history}) => {
-                  debugger;
+                <Route path="/profile/:id" render={({ match, history }) => {
                   return (user && user.id && match.params && match.params.id && match.params.id == user.id)
-                        ? <Profile/> : history.goBack();
+                    ? <Profile /> : history.goBack();
                 }} />
-                <Route exect path="/signup" component={SignUp} />
-                <Route exect path="/home" component={Home}/>
+                <Route exect path="/signup/:email?/" component={SignUp} />
+                <Route exect path="/home" component={Home} />
+                <Route exect path="/about" component={About} />
                 <Route exect path="/createGroup" component={CreateGroup} />
                 <Route exect path="/group" component={Group} />
                 <Route exect path="/addVolunteers" component={AddVolunteer} />
