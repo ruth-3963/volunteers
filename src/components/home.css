@@ -17,8 +17,8 @@ img {
 h4,h2,h3{
    font-family: cursive;
 }
-h2,li h4	{
-   color: green;
+h2,li 	{
+   color: #0d6efd;
 }
 #bottomDiv{
    display: flex;

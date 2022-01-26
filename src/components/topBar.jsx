@@ -5,9 +5,7 @@ import { Link } from 'react-router-dom';
 import { Button } from "react-bootstrap";
 import { UserContext, userToGroupContext, GroupContext } from "../App";
 const TopBar = (props) => {
-    const { user, setUser } = useContext(UserContext);
     const { userToGroup, setUserToGroup } = useContext(userToGroupContext);
-    const { group, setGroup } = useContext(GroupContext);
     return (
         <Navbar sticky="top" bg="light" expand="lg">
             <Container>
@@ -17,9 +15,9 @@ const TopBar = (props) => {
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="me-start">
-                        <Nav.Link href="#home">Home</Nav.Link>
-                        <Nav.Link href="#link">About</Nav.Link>
-                        <Nav.Link href="#link">Profile</Nav.Link>
+                        <Nav.Link href="/home">Home</Nav.Link>
+                        <Nav.Link href="/about">About</Nav.Link>
+                       {userToGroup && userToGroup.user_id && <Nav.Link href={`/profile/${userToGroup.user_id}`}>Profile</Nav.Link>}
 
                     </Nav>
                 </Navbar.Collapse>

@@ -11,7 +11,7 @@ const Group = () => {
         const errorHandler = useErrorHandler()
         useEffect(async () => {
                 try {
-                        const result = await axios.get("" + serverURL + "api/Group", {
+                        const result = await axios.get(serverURL + "api/Group", {
                                 params: {
                                         id: group.id,
                                 }

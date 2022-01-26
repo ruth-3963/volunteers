@@ -42,8 +42,8 @@ const ForgetPassword = () => {
         <div className="auth-wrapper">
             <div className="auth-inner">
                 <form onSubmit={SendEmail}>
-                <CloseButton onClick={() => history.push("/home")}/>
-                                    <h3>Reset password</h3>
+                    <CloseButton onClick={() => history.push("/home")} />
+                    <h3>Reset password</h3>
                     <div>
                         <div className="form-group">
                             <label>Email</label>
@@ -51,17 +51,20 @@ const ForgetPassword = () => {
                                 onChange={e => setEmail(e.target.value)} value={email} />
                         </div>
                         <br />   <div className="d-grid gap-2">
-                        <Button variant="outline-primary" block type="submit">Submit</Button>
-                    </div>
+                            <Button variant="outline-primary" block type="submit">Submit</Button>
+                        </div>
                     </div>
                 </form>
-                {showNullError && (<div><br/><b>The email address cannot be null</b></div>)}
-                {showError && <div> <br/>
+                {showNullError && (<div><br /><b>The email address cannot be null</b></div>)}
+                {showError && <div> <br />
                     <b>The email isn't recognized. Please try again or register for a new account</b>
                     <Link to="signup"></Link>
                 </div>}
-                {messageFromServer === "recovery email sent" && (<div><br/>
+                {messageFromServer === "recovery email sent" && (<div><br />
                     <b>Password reset email successfuly sent</b>
+                </div>)}
+                {messageFromServer === "error email sent" && (<div><br />
+                    <b>occours error on email sent</b>
                 </div>)}
 
             </div>

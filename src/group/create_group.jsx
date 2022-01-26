@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
 import { useContext } from 'react';
-import {Button,CloseButton} from 'react-bootstrap';
+import { Button, CloseButton } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import { useErrorHandler } from 'react-error-boundary';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -22,7 +22,7 @@ const CreateGroup = () => {
             description: '',
         },
         onSubmit: async (values) => {
-            axios.post("" + serverURL + "api/Group", {
+            axios.post(serverURL + "api/Group", {
                 id_manager: user.id,
                 name: values.name,
                 description: values.description
@@ -42,14 +42,13 @@ const CreateGroup = () => {
     });
     return (<div className="auth-wrapper">
         <div className="auth-inner">
-        <CloseButton onClick={() => history.push("/home")}/>
+            <CloseButton onClick={() => history.push("/home")} />
             <h3>Create group</h3>
             <Form onSubmit={formik.handleSubmit}>
                 <Form.Group>
                     <Form.Label>Group name</Form.Label>
                     <Form.Control type="text" placeholder="enter group name" id="name" name="name"
                         onChange={formik.handleChange} value={formik.values.name} disabled={isCreate} />
-
                 </Form.Group>
                 <Form.Group>
                     <Form.Label>Description on your group</Form.Label>

@@ -18,7 +18,7 @@ const ChooseColor = (props) => {
     const handleClose = () => { props.setShow(false); };
     useEffect(async () => {
         try {
-            const allUsersColors = await axios.get("" + serverUrl + "getAllUsersColors", {
+            const allUsersColors = await axios.get(serverUrl + "getAllUsersColors", {
                 params: {
                     groupId: props.group.id
                 }
@@ -38,7 +38,7 @@ const ChooseColor = (props) => {
     const submit = async () => {
         if (props.color) {
             try {
-                const result = await axios.put("" + serverUrl + "api/usersToGroups", {
+                const result = await axios.put(serverUrl + "api/usersToGroups", {
                     user_id: user.id, group_id: props.group.id, color: props.color
                 });
                 if (result.data) {

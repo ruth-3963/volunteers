@@ -1,5 +1,13 @@
-import React, { cloneElement, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
+import axios from "axios";
+import { ScheduleComponent, Day, Week, WorkWeek, Month, Agenda, Inject, popupClose, ResourcesDirective, ResourceDirective, } from '@syncfusion/ej2-react-schedule';
+import serverURL from '../serverURL';
+import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
+import ChooseColor from '../group/chooseColor';
+import { useContext } from 'react';
+import { GroupContext, UserContext, userToGroupContext } from '../App';
+import { useErrorHandler } from 'react-error-boundary';
 import './CalendarStyles.css';
 import '../App.css'
 import "../../node_modules/@syncfusion/ej2-base/styles/material.css";
@@ -12,20 +20,6 @@ import "../../node_modules/@syncfusion/ej2-navigations/styles/material.css";
 import "../../node_modules/@syncfusion/ej2-popups/styles/material.css";
 import "../../node_modules/@syncfusion/ej2-splitbuttons/styles/material.css";
 import "../../node_modules/@syncfusion/ej2-react-schedule/styles/material.css";
-import scheduleData from './datasource'
-import axios from "axios";
-import { ScheduleComponent, Day, Week, WorkWeek, Month, Agenda, Inject, popupClose, ResourcesDirective, ResourceDirective, } from '@syncfusion/ej2-react-schedule';
-import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
-import { DateTimePickerComponent } from '@syncfusion/ej2-react-calendars';
-import { useHistory, useLocation } from "react-router-dom"
-import Button from 'react-bootstrap/esm/Button';
-import serverURL from '../serverURL';
-import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
-import ChooseColor from '../group/chooseColor';
-import { validateYupSchema } from 'formik';
-import { useContext } from 'react';
-import { GroupContext, UserContext, userToGroupContext } from '../App';
-import { useErrorHandler } from 'react-error-boundary';
 
 const ChooseEvents = (props) => {
   const calendar = useRef(1);
@@ -34,13 +28,13 @@ const ChooseEvents = (props) => {
   const [showColorAlert, setShowColorAlert] = useState(false);
   const [color, setColor] = useState('');
   const [ownerData, setOwnerData] = useState([]);
-  const { user, setUser } = useContext(UserContext);
-  const { group, setGroup } = useContext(GroupContext);
+  const { user } = useContext(UserContext);
+  const { group } = useContext(GroupContext);
   const { userToGroup, setUserToGroup } = useContext(userToGroupContext);
   const handleError = useErrorHandler();
   useEffect(async () => {
     try {
-      const result = await axios.get("" + serverURL + "api/Event/" + id);
+      const result = await axios.get(serverURL + "api/Event/" + id);
       if (result.data) {
         setEvents(result.data);
       }
@@ -48,11 +42,10 @@ const ChooseEvents = (props) => {
     catch (err) {
       handleError(err);
     }
-
   }, []);
   useEffect(async () => {
     try {
-      const result = await axios.get("" + serverURL + "api/UsersToGroups/", { params: { groupId: group.id, userId: user.id } });
+      const result = await axios.get(serverURL + "api/UsersToGroups/", { params: { groupId: group.id, userId: user.id } });
       if (result.data) {
         localStorage.setItem("userToGroup", JSON.stringify(result.data));
         setUserToGroup(result.data);
@@ -65,7 +58,7 @@ const ChooseEvents = (props) => {
         setOwnerData([{ Id: user.id, OwnerColor: result.data.color, OwnerText: user.name }]);
       }
     }
-    catch(err){
+    catch (err) {
       handleError(err)
     }
   }, []);
@@ -78,7 +71,7 @@ const ChooseEvents = (props) => {
     const userId = user.id;
     let events = calendar.current.eventsData;
     let eventToUser = events.filter(e => e.OwnerId === userId).map(e => e.id);
-    axios.post("" + serverURL + "api/EventToUser", {
+    axios.post(serverURL + "api/EventToUser", {
       userId: userId,
       groupId: group.id,
       events: eventToUser
@@ -105,7 +98,13 @@ const ChooseEvents = (props) => {
 
   return (<div>
     <ButtonComponent variant="link" onClick={() => saveData()}> save schedule</ButtonComponent>
-    <ScheduleComponent actionBegin={(args) => onActionBegin(args)} ref={c => calendar.current = c} width='100%' height='550px' eventSettings={{ dataSource: events }} popupOpen={(args) => penPopUp(args)}>
+    <ScheduleComponent
+      actionBegin={(args) => onActionBegin(args)}
+      ref={c => calendar.current = c}
+      width='100%' height='550px'
+      eventSettings={{ dataSource: events }}
+      popupOpen={(args) => penPopUp(args)}
+    >
       <ResourcesDirective>
         <ResourceDirective field='OwnerId' title='Owner' name='Owners' dataSource={ownerData} textField="OwnerText" idField='Id' colorField='OwnerColor'>
         </ResourceDirective>

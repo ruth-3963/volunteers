@@ -1,4 +1,4 @@
-import { Link, useHistory, useLocation } from 'react-router-dom';
+import { Link, useHistory, useLocation, useParams } from 'react-router-dom';
 import './login.css';
 import '../../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import Button from 'react-bootstrap/Button';
@@ -13,6 +13,7 @@ import Modal from "react-bootstrap/Modal";
 import { useLocationState } from 'react-router-use-location-state';
 import { GroupContext, UserContext, userToGroupContext } from '../App';
 const SignIn = (props) => {
+    const email =  new URLSearchParams(props.location.search).get("email")?.slice(0, -1);;
     const history = useHistory();
     const location = useLocation();
     const handleError = useErrorHandler();
@@ -27,7 +28,7 @@ const SignIn = (props) => {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            email: '',
+            email: email?email:'',
             password: '',
             group: '',
             emailValid: ''
@@ -41,7 +42,7 @@ const SignIn = (props) => {
                 try {
                     formik.values.emailValid = "";
                     const password = values.password;
-                    const result = await axios.get("" + serverURL + "api/User", {
+                    const result = await axios.get(serverURL + "api/User", {
                         params: {
                             email: email,
                             password: password
@@ -52,7 +53,7 @@ const SignIn = (props) => {
                         if (newUser.email && newUser.password) {
                             localStorage.setItem("user", JSON.stringify(newUser));
                             setUser(newUser);
-                            const groups = await axios.get("" + serverURL + "GetByManager", {
+                            const groups = await axios.get(serverURL + "GetByManager", {
                                 params: {
                                     id: result.data.id
                                 }
@@ -76,7 +77,7 @@ const SignIn = (props) => {
     useEffect(async () => {
         if (location && location.state && location.state.from && location.state.from.pathname === "/signup") {
             try {
-                const groups = await axios.get("" + serverURL + "GetByManager", {
+                const groups = await axios.get(serverURL + "GetByManager", {
                     params: {
                         id: location.state.user.id,
                     }
@@ -90,9 +91,7 @@ const SignIn = (props) => {
         }
 
     }, []);
-    const tryElement = () => {
-        return(<div><p>aaaa</p><button>btn</button></div>);
-    }
+  
     const submitAllValue = async () => {
         const formikGroup = formik.values.group;
         if (formikGroup === "create new group" || !listOfGroups.length) {
@@ -102,7 +101,7 @@ const SignIn = (props) => {
             const index = formikGroup ? listOfGroups.findIndex(g => g.name === formikGroup) : 0;
             let currGroup = listOfGroups[index];
             try {
-                const resultGroup = await axios.get("" + serverURL + "api/Group", {
+                const resultGroup = await axios.get(serverURL + "api/Group", {
                     params: {
                         id: currGroup.id,
                     }
@@ -110,7 +109,7 @@ const SignIn = (props) => {
                 currGroup = resultGroup.data;
                 setGroup(resultGroup.data);
                 localStorage.setItem("group", JSON.stringify(resultGroup.data));
-                const resultUsersToGroups = await axios.get("" + serverURL + "api/UsersToGroups", {
+                const resultUsersToGroups = await axios.get(serverURL + "api/UsersToGroups", {
                     params: {
                         groupId: currGroup.id,
                         userId: user.id
@@ -129,12 +128,9 @@ const SignIn = (props) => {
                 else {
                     if (!resultUsersToGroups.data.color) {
                         history.push({ pathname: "/chooseEvents/" + currGroup.id });
-                        return;
                     }
-                    if (resultGroup.data.events) {
-                        // history.push({ pathname: "/schedule/" + group.id , state: { group: resultGroup.data, events: JSON.parse(resultGroup.data.events) } });
+                    else if(resultGroup.data.events) {
                         history.push("/schedule/" + currGroup.id);
-                        return;
                     }
                 }
 
@@ -148,9 +144,6 @@ const SignIn = (props) => {
             <div className="auth-inner">
                 <form onSubmit={formik.handleSubmit} >
                     <CloseButton onClick={() => history.push("/home")} />
-                    {/* <button type="button" className="close" aria-label="Close" onClick={() => history.push("/")} >
-                        <span aria-hidden="true" >&times;</span>
-                    </button><br /> */}
                     <h3>Sign In</h3>
                     <div className="form-group">
                         <label>Email</label>

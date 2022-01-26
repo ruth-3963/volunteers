@@ -5,24 +5,26 @@ import { useHistory } from "react-router";
 import axios from 'axios';
 import serverURL from '../serverURL';
 import Modal from "react-bootstrap/Modal";
-import {Button,CloseButton} from 'react-bootstrap';
+import { Button, CloseButton } from 'react-bootstrap';
 import { useContext } from "react";
-import { GroupContext } from "../App";
+import { GroupContext, UserContext } from "../App";
 import { useErrorHandler } from "react-error-boundary";
+import { useParams } from "react-router-dom";
 
-
-const SignUp = () => {
+const SignUp = ({ location }) => {
+    const email = new URLSearchParams(location.search).get("email")?.slice(0, -1);;
     const history = useHistory();
     const [matchPassword, setMatchPassword] = useState(false);
     const [show, setShow] = useState(false);
     const [listOfGroups, setListOfGroups] = useState(null);
     const { group, setGroup } = useContext(GroupContext);
+    const { user, setUser } = useContext(UserContext)
     const [events, setEvents] = useState([]);
     const handleError = useErrorHandler();
     const formik = useFormik({
         initialValues: {
             name: '',
-            email: '',
+            email: email ? email : '',
             password: '',
             phone: '',
             confirm_password: '',
@@ -36,14 +38,15 @@ const SignUp = () => {
                 user.password = values.password;
                 user.phone = values.phone;
                 try {
-                    const result = await axios.post("" + serverURL + "api/User", {
+                    const result = await axios.post(serverURL + "api/User", {
                         name: user.name,
                         password: user.password,
                         phone: user.phone,
                         email: user.email
                     });
+                    setUser(result.data);
                     localStorage.setItem("user", JSON.stringify(result.data));
-                    const groups = await axios.get("" + serverURL + "GetByManager", {
+                    const groups = await axios.get(serverURL + "GetByManager", {
                         params: {
                             id: result.data.id,
                         }
@@ -79,7 +82,7 @@ const SignUp = () => {
             const index = formikGroup ? listOfGroups.findIndex(g => g.name === formikGroup) : 0;
             const newGroup = listOfGroups[index];
             try {
-                const result = await axios.get("" + serverURL + "api/Group", {
+                const result = await axios.get(serverURL + "api/Group", {
                     params: {
                         id: newGroup.id,
                     }
@@ -104,7 +107,7 @@ const SignUp = () => {
         <div className="auth-wrapper">
             <div className="auth-inner">
                 <form onSubmit={formik.handleSubmit} >
-                    <CloseButton onClick={() => history.push("/home")}/>
+                    <CloseButton onClick={() => history.push("/home")} />
                     <h3>Sign Up</h3>
                     <div className="form-group">
                         <label>Name</label>
@@ -154,8 +157,6 @@ const SignUp = () => {
                         ) : ""}
                         <option key={listOfGroups ? listOfGroups.length : 0}>create new group</option>
                     </select>
-
-
                     <Button variant="primary" block onClick={() => submitAllValue()}>Submit</Button>
                 </Modal.Footer>
             </Modal>

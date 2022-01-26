@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Modal, Form, Button, InputGroup, FormControl } from "react-bootstrap";
 const ChooseDate = (props) => {
-    const handleClose = () => props.setShowDateAlert(false);
+    
     const [message, setMessage] = useState("")
+    const handleClose = () => props.setShowDateAlert(false);
     const submitRangeDates = () => {
         if (props.calendar && props.calendar.eventsData)      {
             let eventsData = props.calendar.eventsData;
