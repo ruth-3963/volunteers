@@ -1,11 +1,16 @@
 import React, { useContext } from "react";
 import logo from '../logo_min.jpg';
 import { Navbar, Container, NavDropdown, Nav } from 'react-bootstrap'
-import { Link } from 'react-router-dom';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import { Button } from "react-bootstrap";
+import '../index.css'
 import { UserContext, userToGroupContext, GroupContext } from "../App";
 const TopBar = (props) => {
     const { userToGroup, setUserToGroup } = useContext(userToGroupContext);
+    const location = useLocation();
+    const checkCurrentLocation = (link) => {
+        return location.pathname.includes(link);
+    }
     return (
         <Navbar sticky="top" bg="light" expand="lg">
             <Container>
@@ -17,7 +22,7 @@ const TopBar = (props) => {
                     <Nav className="me-start">
                         <Nav.Link href="/home">Home</Nav.Link>
                         <Nav.Link href="/about">About</Nav.Link>
-                       {userToGroup && userToGroup.user_id && <Nav.Link href={`/profile/${userToGroup.user_id}`}>Profile</Nav.Link>}
+                        {userToGroup && userToGroup.user_id && <Nav.Link href={`/profile/${userToGroup.user_id}`}>Profile</Nav.Link>}
 
                     </Nav>
                 </Navbar.Collapse>
@@ -25,11 +30,13 @@ const TopBar = (props) => {
                     <Nav className="me-auto">
 
                         {userToGroup && userToGroup.is_manager && <>
-                            <Nav.Link href={`/editSchedule/${userToGroup.group_id}`}>Edit Schedule</Nav.Link>
-                            <Nav.Link href={`/addVolunteers`}>Add volunteers</Nav.Link><span> </span>
-                            <Nav.Link href={`/schedule/${userToGroup.group_id}`}>Schedule</Nav.Link></>
+                            <Nav.Link className={checkCurrentLocation('/editSchedule') && 'bgColorToCurrentLink'}
+                                href={`/editSchedule/${userToGroup.group_id}`}>Edit Schedule</Nav.Link>
+                            <Nav.Link className={checkCurrentLocation('/addVolunteers') && 'bgColorToCurrentLink'}
+                                href={`/addVolunteers`}>Add volunteers</Nav.Link><span> </span>
+                            <Nav.Link className={checkCurrentLocation('/schedule') && 'bgColorToCurrentLink'}
+                                href={`/schedule/${userToGroup.group_id}`}>Schedule</Nav.Link></>
                         }
-                        {userToGroup &&<Nav.Link href={`/chooseEvents/${userToGroup.group_id}`}>Choose events</Nav.Link>}
 
                     </Nav>
                 </Navbar.Collapse>

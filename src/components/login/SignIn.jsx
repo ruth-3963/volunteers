@@ -1,4 +1,4 @@
-import { Link, useHistory, useLocation, useParams } from 'react-router-dom';
+import { Link, useHistory, useLocation, useParams  } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import CloseButton from 'react-bootstrap/CloseButton'
 import Form from 'react-bootstrap/Form';
@@ -12,7 +12,7 @@ import { GroupContext, UserContext, userToGroupContext } from '../../App';
 import './login.css';
 import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css'
 const SignIn = (props) => {
-    const email =  new URLSearchParams(props.location.search).get("email")?.slice(0, -1);;
+    const email =  new URLSearchParams(props.location.search).get("email")?.replace("/", "");;
     const history = useHistory();
     const location = useLocation();
     const handleError = useErrorHandler();

@@ -56,7 +56,8 @@ const Calendar = (props) => {
         if (args.requestType === 'toolbarItemRendering') {
             if (userToGroup && userToGroup.is_manager) {
                 let userIconItem = {
-                    align: 'Center', text: 'edit schedule',
+                    align: 'Center', 
+                    text: 'edit schedule',
                     cssClass: 'e-schedule-user-icon',
                     template: `<a href="/chooseEvents/${userToGroup.group_id}" class="nav-link">Choose events</a>`,
                 };

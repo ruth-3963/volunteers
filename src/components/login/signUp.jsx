@@ -12,7 +12,7 @@ import { useErrorHandler } from "react-error-boundary";
 import { useParams } from "react-router-dom";
 
 const SignUp = ({ location }) => {
-    const email = new URLSearchParams(location.search).get("email")?.slice(0, -1);;
+    const email = new URLSearchParams(location.search).get("email")?.replace("/", "");
     const history = useHistory();
     const [matchPassword, setMatchPassword] = useState(false);
     const [show, setShow] = useState(false);

@@ -12,6 +12,7 @@ import {
   Route,
   Link
 } from "react-router-dom";
+import axios from 'axios';
 import { Fallback } from './components/fallBack';
 import CreateGroup from './components/group/create_group';
 import Group from './components/group/group';
@@ -24,6 +25,8 @@ import Button from 'react-bootstrap/esm/Button';
 import { useHistory, useLocation, Redirect, prot } from "react-router-dom";
 import { PortableWifiOffRounded } from '@material-ui/icons';
 import ForgetPassword from './components/login/forgetPassword';
+import { ChangeManagerModal } from './components/modals/changeManagerModal';
+import { serverURL } from './config/config';
 export const UserContext = React.createContext({ user: {}, setUser: () => { } });
 export const GroupContext = React.createContext({ group: {}, setGroup: () => { } })
 export const userToGroupContext = React.createContext({ userToGroup: {}, setUserToGroup: () => { } });
@@ -38,6 +41,8 @@ const App = () => {
   const [isLogin, setIsLogin] = useState(false);
   const [tryAgain, setTryAgain] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showChangeManager, setShowChangeManager] = useState(false);
+  const [groupToChangeManager, setGroupToChangeManager] = useState(null)
   const history = useHistory();
   const forceUpdate = useReducer(() => ({}))[1];
   useEffect(() => {
@@ -48,11 +53,20 @@ const App = () => {
       setGroup(localGroup);
       setIsLogin(true)
     }
-    if (localUser) setUser(localUser);
-    if (localUserToGroup) setUserToGroup(localUserToGroup);
-    setIsLoading(true)
-  }, []);
+    if (localUser) {
+      setUser(localUser);
+      axios.get(`${serverURL}group/getConfirmManagerGroups/${localUser.id}`).then(result => {
+        if (result.data) {
+          setGroupToChangeManager(result.data);
+          setShowChangeManager(true);
+        }
+      });
+    }
 
+    if (localUserToGroup) setUserToGroup(localUserToGroup);
+
+    setIsLoading(true);
+  }, []);
   const signOut = () => {
     localStorage.setItem("user", null);
     localStorage.setItem("group", null);
@@ -70,42 +84,45 @@ const App = () => {
             onReset={() => {
               forceUpdate();
             }}>
-            {isLoading && <><TopBar isLogin={isLogin} signOut={() => signOut()}></TopBar>
-              <Switch>
-                <Route exact path="/">
-                  {isLogin && group && group.id ? <Redirect to={`/schedule/${group.id}`} /> :
-                    <Redirect push to="/signin" />}
-                </Route>
+            {isLoading &&
+              <><TopBar isLogin={isLogin} signOut={() => signOut()}></TopBar>
+                {showChangeManager && <ChangeManagerModal setShowChangeManager={setShowChangeManager}
+                  group={groupToChangeManager} />}
+                <Switch>
+                  <Route exact path="/">
+                    {isLogin && group && group.id ? <Redirect to={`/schedule/${group.id}`} /> :
+                      <Redirect push to="/signin" />}
+                  </Route>
 
-                <Route exect path="/signin/:email?/"
-                  render={(props) =>
-                    <SignIn {...props} isLogin={isLogin} setIsLogin={(val) => setIsLogin(val)} />
+                  <Route exect path="/signin/:email?/"
+                    render={(props) =>
+                      <SignIn {...props} isLogin={isLogin} setIsLogin={(val) => setIsLogin(val)} />
 
-                  }
-                />
-                <Route path="/profile/:id" render={({ match, history }) => {
-                  return (user && user.id && match.params && match.params.id && match.params.id == user.id)
-                    ? <Profile /> : history.goBack();
-                }} />
-                <Route exect path="/signup/:email?/" component={SignUp} />
-                <Route exect path="/home" component={Home} />
-                <Route exect path="/about" component={About} />
-                <Route exect path="/createGroup" component={CreateGroup} />
-                <Route exect path="/group" component={Group} />
-                <Route exect path="/addVolunteers" component={AddVolunteer} />
-                <Route exect path="/forgetPassword" component={ForgetPassword} />
-                <Route exact path="/reset/:token" component={ResetPassword} />
-                <ProtectedRoute exect path="/chooseEvents/:id">
-                  <ChooseEvents />
-                </ProtectedRoute>
-                <ProtectedRoute exect path="/editSchedule/:id">
-                  <EditScheduler2 />
-                </ProtectedRoute>
-                <ProtectedRoute exect path="/schedule/:id">
-                  <Calendar></Calendar>
-                </ProtectedRoute>
+                    }
+                  />
+                  <Route path="/profile/:id" render={({ match, history }) => {
+                    return (user && user.id && match.params && match.params.id && match.params.id == user.id)
+                      ? <Profile /> : history.goBack();
+                  }} />
+                  <Route exect path="/signup/:email?/:id?" component={SignUp} />
+                  <Route exect path="/home" component={Home} />
+                  <Route exect path="/about" component={About} />
+                  <Route exect path="/createGroup" component={CreateGroup} />
+                  <Route exect path="/group" component={Group} />
+                  <Route exect path="/addVolunteers" component={AddVolunteer} />
+                  <Route exect path="/forgetPassword" component={ForgetPassword} />
+                  <Route exact path="/reset/:token" component={ResetPassword} />
+                  <ProtectedRoute exect path="/chooseEvents/:id">
+                    <ChooseEvents />
+                  </ProtectedRoute>
+                  <ProtectedRoute exect path="/editSchedule/:id">
+                    <EditScheduler2 />
+                  </ProtectedRoute>
+                  <ProtectedRoute exect path="/schedule/:id">
+                    <Calendar></Calendar>
+                  </ProtectedRoute>
 
-              </Switch></>
+                </Switch></>
             }
           </ErrorBoundary>
         </userToGroupContext.Provider>

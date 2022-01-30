@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import useStateWithCallback from "use-state-with-callback";
 import { useParams } from 'react-router';
 import axios from "axios";
-import {serverURL} from "../../config/config";
+import { serverURL } from "../../config/config";
 import Toast from 'react-bootstrap/Toast'
 import ToastContainer from 'react-bootstrap/ToastContainer'
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
@@ -19,17 +19,17 @@ import "../../../node_modules/@syncfusion/ej2-popups/styles/material.css";
 import "../../../node_modules/@syncfusion/ej2-splitbuttons/styles/material.css";
 import "../../../node_modules/@syncfusion/ej2-react-schedule/styles/material.css";
 import { ScheduleComponent, Day, Week, WorkWeek, Month, Inject, ViewsDirective, ViewDirective, ResourcesDirective, ResourceDirective, popupOpen } from '@syncfusion/ej2-react-schedule';
-import {  useHistory } from "react-router-dom"
+import { useHistory } from "react-router-dom"
 import { useContext } from 'react';
 import { GroupContext } from "../../App"
 import ChooseDate from './chooseDate';
 import { useErrorHandler } from 'react-error-boundary';
-import {L10n} from '@syncfusion/ej2-base';
+import { L10n } from '@syncfusion/ej2-base';
 L10n.load({
   'en-US': {
-      'schedule': {
-          'newEvent': 'Add Shift',
-      },
+    'schedule': {
+      'newEvent': 'Add Shift',
+    },
   }
 });
 const EditScheduler2 = () => {
@@ -133,6 +133,21 @@ const EditScheduler2 = () => {
     if (args.requestType == "eventCreate") {
       args.data[0].OwnerId = null;
     }
+    if (args.requestType === 'toolbarItemRendering') {
+      args.items.push(
+              {
+          align: 'Center',
+          cssClass: 'e-schedule-user-icon',
+          template: `<Button class="btn btn-link">Calc events</Button>`,
+          click: () => setShowDateAlert(true)
+        },
+        {
+          align: 'Center',
+          cssClass: 'e-schedule-user-icon',
+          template: `<Button class="btn btn-link">Save</Button>`,
+          click: sendData
+        })
+    }
   }
   const CalcEvents = async (eventsToCalc) => {
     if (eventsToCalc && eventsToCalc.length) {
@@ -170,18 +185,16 @@ const EditScheduler2 = () => {
         <Toast.Body>המידע נשמר בהצלחה</Toast.Body>
       </Toast>
     </ToastContainer>
-    <ButtonComponent onClick={() => sendData()} variant="link" > save schedule</ButtonComponent>
-    <ButtonComponent onClick={() => setShowDateAlert(true)}>calc events </ButtonComponent> <ButtonComponent onClick={() => history.push("/addVolunteers")} variant="link" > add volunteers </ButtonComponent>
     <ScheduleComponent
       ref={calendar}
       actionBegin={(args) => onActionBegin(args)}
       actionComplete={(args) => onActionComplete(args)}
-      width='100%' height='550px'
+      width='100%' height='100%'
       eventSettings={{
         dataSource: events,
         fields: {
           subject: { title: 'Shift Name' },
-          description:{title:'Comments'}
+          description: { title: 'Comments' }
         }
       }} >
       <ResourcesDirective>

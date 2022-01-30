@@ -13,6 +13,7 @@ import { Modal, FormControl, Alert } from 'react-bootstrap';
 import { useErrorHandler } from 'react-error-boundary';
 import { serverURL } from '../../config/config';
 import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import { SetManagerModal } from '../modals/setManagerModal';
 
 export const Profile = () => {
     const { user, setUser } = useContext(UserContext);
@@ -24,6 +25,7 @@ export const Profile = () => {
     const [isInEdit, setIsInEdit] = useState(false);
     const [showValid, setShowValid] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
+    const [showManagerAlert, setShowManagerAlert] = useState(false);
     const [variantAlert, setVariantAlert] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
     const [password, setPassword] = useState("");
@@ -125,6 +127,10 @@ export const Profile = () => {
         e.preventDefault();
         setShowValid(true);
     }
+    const setManager = (group) => {
+        setCurrGroup(group);
+        setShowManagerAlert(true)
+    }
     return (
         <>
             {showAlert &&
@@ -154,6 +160,8 @@ export const Profile = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
+            {showManagerAlert && <SetManagerModal setShowManagerAlert = {setShowManagerAlert}
+                                                  group = {currGroup}/>}
             {showColorAlert && <ChooseColor
                 showColorAlert={showColorAlert}
                 color={color} setColor={(val) => { setColor(val) }}
@@ -218,6 +226,7 @@ export const Profile = () => {
                                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                                             <Button variant="outline-primary" onClick={() => changeColor(item)}>change color</Button>
                                             <Button variant="outline-primary" onClick={() => deleteGroup(item)}>delete group</Button>
+                                            {item.mEmail === user.email && <Button variant="outline-primary" onClick={() => setManager(item)}>set manager</Button>}
                                         </div>
                                     </Accordion.Body>
                                 </Accordion.Item>
