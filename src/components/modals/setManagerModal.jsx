@@ -23,7 +23,8 @@ export const SetManagerModal = (props) => {
                     }
                 }).then(result => {
                     if (result.data && result.data.length) {
-                        setUsers(result.data.map(u => ({ id: u.id, description: `${u.name ? u.name : ''} (${u.email})` })));
+                        setUsers(result.data.filter(d => !d.isDeleted)
+                        .map(u => ({ id: u.user.id, description: `${u.user.name ? u.user.name : ''} (${u.user.email})` })));
                     }
                 })
             }

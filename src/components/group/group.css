@@ -1,0 +1,21 @@
+.group-container {
+    display: flex;
+    flex-direction: row;
+    height: 95%;
+    justify-content: space-around;
+    padding: 1.5rem;
+}
+.group-user-list{
+    display: flex;
+    height: 100%;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    align-content: flex-end;
+    border: 2px solid #9a9ad1;
+    padding: 2rem 2rem;
+    border-radius: 1rem;
+}
+.group-details{
+    text-align: center;
+    padding: 4rem 4rem;
+}

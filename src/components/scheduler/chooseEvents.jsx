@@ -6,6 +6,7 @@ import {serverURL} from '../../config/config';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import ChooseColor from '../group/chooseColor';
 import { useContext } from 'react';
+import { Alert } from 'react-bootstrap';
 import { GroupContext, UserContext, userToGroupContext } from '../../App';
 import { useErrorHandler } from 'react-error-boundary';
 import './CalendarStyles.css';
@@ -28,6 +29,8 @@ const ChooseEvents = (props) => {
   const [showColorAlert, setShowColorAlert] = useState(false);
   const [color, setColor] = useState('');
   const [ownerData, setOwnerData] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [lastDate, setLastDate] = useState(null);
   const { user } = useContext(UserContext);
   const { group } = useContext(GroupContext);
   const { userToGroup, setUserToGroup } = useContext(userToGroupContext);
@@ -37,6 +40,11 @@ const ChooseEvents = (props) => {
       const result = await axios.get(serverURL + "api/Event/" + id);
       if (result.data) {
         setEvents(result.data);
+        const today = new Date();
+        setSelectedDate(result.data.find(e => e.EndTime > new Date()));
+        let laterDate = Math.max.apply(null,result.data.map(e => Date.parse(e.StartTime)));
+        laterDate = new Date(laterDate);
+        setLastDate(laterDate > new Date() ? laterDate.toISOString().slice(0,10).replace(/-/g,"/"): null);
       }
     }
     catch (err) {
@@ -66,7 +74,8 @@ const ChooseEvents = (props) => {
     if (color && userToGroup && userToGroup.color) {
       setOwnerData([{ Id: user.id, OwnerColor: color, OwnerText: user.name }]);
     }
-  }, [color])
+  }, [color]);
+ 
   const saveData = async () => {
     const userId = user.id;
     let events = calendar.current.eventsData;
@@ -82,6 +91,18 @@ const ChooseEvents = (props) => {
     if (args.changedRecords) {
       setEvents(calendar.current.eventsData);
     }
+    if (args.requestType === 'toolbarItemRendering') {
+      if (userToGroup && userToGroup.is_manager) {
+          let userIconItem = {
+              align: 'Center', 
+              text: 'save',
+              cssClass: 'e-schedule-user-icon',
+              template: `<Button class="btn btn-link">Save</Button>`,
+              click: saveData
+            };
+          args.items.push(userIconItem);
+      }
+  }
   }
   const penPopUp = (args) => {
     const userId = user.id;
@@ -97,13 +118,16 @@ const ChooseEvents = (props) => {
   }
 
   return (<div>
-    <ButtonComponent variant="link" onClick={() => saveData()}> save schedule</ButtonComponent>
+     <Alert>
+      <b>{lastDate ? `the last Date to choose is ${lastDate}`:`no events to choose`}</b> 
+    </Alert>
     <ScheduleComponent
       actionBegin={(args) => onActionBegin(args)}
       ref={c => calendar.current = c}
       width='100%' height='550px'
       eventSettings={{ dataSource: events }}
       popupOpen={(args) => penPopUp(args)}
+      selectedDate={selectedDate?selectedDate:new Date()}
     >
       <ResourcesDirective>
         <ResourceDirective field='OwnerId' title='Owner' name='Owners' dataSource={ownerData} textField="OwnerText" idField='Id' colorField='OwnerColor'>

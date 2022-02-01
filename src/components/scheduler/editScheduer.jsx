@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, ReactDOMServer } from 'react';
 import useStateWithCallback from "use-state-with-callback";
 import { useParams } from 'react-router';
 import axios from "axios";
 import { serverURL } from "../../config/config";
-import Toast from 'react-bootstrap/Toast'
+import {Toast , Dropdown}  from 'react-bootstrap'
 import ToastContainer from 'react-bootstrap/ToastContainer'
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import '../../App.css'
@@ -43,7 +43,7 @@ const EditScheduler2 = () => {
   const [ownerData, setOwnerData] = useState([]);
   const [showToast, setShowToast] = useState(false);
   const { group, setGroup } = useContext(GroupContext);
-  const [showDateAlert, setShowDateAlert] = useState(false)
+  const [showDateAlert, setShowDateAlert] = useState(false);
   const handleError = useErrorHandler();
   const [rangeDates, setRangeDates] = useStateWithCallback([], value => {
     if (value.length) {
@@ -78,14 +78,23 @@ const EditScheduler2 = () => {
     }
   }, []);
 
-  const sendData = async () => {
+  const sendData = async (e) => {
     try {
-      await axios.post(serverURL + "api/Event", { events: newEvents, group: group });
+      const buttonId = e.originalEvent.target.id;
+      let updateNewEvents = [];
+      setNewEvents(currentState => { // Do not change the state by getting the updated state
+        updateNewEvents = [...currentState];
+         return currentState;
+      })
+      await axios.post(serverURL + "api/Event", { events: updateNewEvents, group: group });
       const newUpdate = updateEvents.map(({ Id, OwnerId, EndTimezone, IsAllDay, RecurrenceRule, StartTimezone, ...allProp }) => allProp);
       await axios.put(serverURL + "UpdateEvents/", newUpdate);
       const newDel = deletedEvents.map(({ Id, OwnerId, ...allProp }) => allProp);
       await axios.delete(serverURL + "api/Event", { data: newDel }, { "Authorization": "***" });
       const result = await axios.get(serverURL + "api/Event", { params: { id: group.id } });
+      if(buttonId != "save"){
+        axios.post(`${serverURL}api/Event/specialSave/${buttonId}`,group);
+      }
       setEvents(result.data);
       setShowToast(true);
     }
@@ -135,7 +144,7 @@ const EditScheduler2 = () => {
     }
     if (args.requestType === 'toolbarItemRendering') {
       args.items.push(
-              {
+        {
           align: 'Center',
           cssClass: 'e-schedule-user-icon',
           template: `<Button class="btn btn-link">Calc events</Button>`,
@@ -144,11 +153,16 @@ const EditScheduler2 = () => {
         {
           align: 'Center',
           cssClass: 'e-schedule-user-icon',
-          template: `<Button class="btn btn-link">Save</Button>`,
+          template: `<div aria-label="Basic example" role="group" class="btn-group">
+          <button type="button" class="btn btn btn-outline-primary" id = "save">Save</button>
+          <button type="button" class="btn btn btn-outline-primary" id = "send">Save and send</button>
+          <button type="button" class="btn btn btn-outline-primary"  id = "requestInlay">Save and request inlay</button></div>`,
           click: sendData
-        })
+        }
+      );
     }
   }
+  
   const CalcEvents = async (eventsToCalc) => {
     if (eventsToCalc && eventsToCalc.length) {
       try {

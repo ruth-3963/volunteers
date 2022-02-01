@@ -27,7 +27,7 @@ const SignIn = (props) => {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            email: email?email:'',
+            email: email ? email: (user && user.email ? user.email :''),
             password: '',
             group: '',
             emailValid: ''
@@ -74,11 +74,12 @@ const SignIn = (props) => {
         },
     });
     useEffect(async () => {
-        if (location && location.state && location.state.from && location.state.from.pathname === "/signup") {
+        if ( props.isLogin && user)
+            {
             try {
                 const groups = await axios.get(serverURL + "GetByManager", {
                     params: {
-                        id: location.state.user.id,
+                        id: user.id,
                     }
                 });
                 setListOfGroups(groups.data);
@@ -121,7 +122,8 @@ const SignIn = (props) => {
                         handleShow();
                     }
                     else{
-                        alert("the manager of this group nt yet declare events")
+                        alert("the manager of this group nt yet declare events");
+                        history.push("/home");
                     }
                 }
                 else {
@@ -182,10 +184,10 @@ const SignIn = (props) => {
                 </Modal.Header>
                 <Modal.Body>you till dont declare the schedule to your group</Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => history.push(`/editSchedule${group.id}`)}>
+                    <Button variant="secondary" onClick={() => history.push(`/editSchedule/${group.id}`)}>
                         Edit Schedule
                     </Button>
-                    <Button variant="primary" onClick={() => { history.push(`/addVolunteers${group.id}`) }}>
+                    <Button variant="primary" onClick={() => { history.push(`/addVolunteers/${group.id}`) }}>
                         Add volunteers
                     </Button>
                 </Modal.Footer>

@@ -8,15 +8,17 @@ import { Button } from 'react-bootstrap';
 import Accordion from 'react-bootstrap/Accordion'
 import ChooseColor from '../group/chooseColor';
 import { useContext } from 'react';
-import { UserContext, userToGroupContext } from '../../App';
+import { GroupContext, UserContext, userToGroupContext } from '../../App';
 import { Modal, FormControl, Alert } from 'react-bootstrap';
 import { useErrorHandler } from 'react-error-boundary';
 import { serverURL } from '../../config/config';
 import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import { SetManagerModal } from '../modals/setManagerModal';
+import { useHistory } from 'react-router-dom';
 
 export const Profile = () => {
     const { user, setUser } = useContext(UserContext);
+    const {group,setGroup} = useContext(GroupContext);
     const { userToGroup } = useContext(userToGroupContext)
     const [currGroup, setCurrGroup] = useState({});
     const [userGroups, setUserGroup] = useState([]);
@@ -31,6 +33,7 @@ export const Profile = () => {
     const [password, setPassword] = useState("");
     const [validError, setValidError] = useState(false);
     const [color, setColor] = useState('');
+    const history = useHistory();
     const errorHandler = useErrorHandler();
 
     useEffect(() => {
@@ -110,25 +113,41 @@ export const Profile = () => {
         }
     });
 
-    const changeColor = (group) => {
-        setCurrGroup(group);
-        setColor(group.color)
+    const changeColor = (currGroup) => {
+        setCurrGroup(currGroup);
+        setColor(currGroup.color)
         setShowColorAlert(true)
     }
-    const deleteGroup = (group) => {
-        if (userToGroup.is_manager) {
+    const deleteGroup = async(currGroup) => {
+        if (currGroup.mEmail === user.email) {
             alert('you are the manager , yoy cant left the group')
         }
         else {
-            axios.post(serverURL + "removeUserFromGroup", group);
+            try {
+                await axios.post(serverURL + "removeUserFromGroup", {
+                    user_id: user.id,
+                    group_id: currGroup.id
+                });
+                if(currGroup.id === group.id){
+                    setGroup(null);
+                    localStorage.setItem("group",null);
+                    history.push("/signin");
+                }
+                else {
+                    window.location.reload(false);
+                }
+            }
+            catch {
+
+            }
         }
     }
     const updateGroup = (e) => {
         e.preventDefault();
         setShowValid(true);
     }
-    const setManager = (group) => {
-        setCurrGroup(group);
+    const setManager = (currGroup) => {
+        setCurrGroup(currGroup);
         setShowManagerAlert(true)
     }
     return (
@@ -160,8 +179,8 @@ export const Profile = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
-            {showManagerAlert && <SetManagerModal setShowManagerAlert = {setShowManagerAlert}
-                                                  group = {currGroup}/>}
+            {showManagerAlert && <SetManagerModal setShowManagerAlert={setShowManagerAlert}
+                group={currGroup} />}
             {showColorAlert && <ChooseColor
                 showColorAlert={showColorAlert}
                 color={color} setColor={(val) => { setColor(val) }}
