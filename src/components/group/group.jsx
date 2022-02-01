@@ -42,10 +42,10 @@ const Group = () => {
                         <h3>{group.name}</h3>
                         <h4>{group.description}</h4>
                         {manager && <><b>Manager : </b><span>{manager.name && manager.name + " - "}<a href={`mailto:${manager.email}`}>{manager.email}</a>  </span></>}
-                        {users.length && <><br /><b>Num of volunteers : </b><span>{users.length}</span></>}
+                        {users.length > 0 && <><br /><b>Num of volunteers : </b><span>{users.length}</span></>}
                         <br />
                 </div>
-                {users.length &&
+                {users.length > 0 &&
                         <div className='group-user-list'>
                                 <h2>Volunteers</h2>
                                 <div style={{ width: '60vh', overflowY: 'auto' }}>

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 import { useContext } from 'react';
 import { Button, CloseButton } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
@@ -16,6 +17,10 @@ const CreateGroup = () => {
     const { user, setUser } = useContext(UserContext);
     const errorHandler = useErrorHandler();
     const history = useHistory();
+    useEffect(() => {
+        if(!user && !user.id)
+            history.push("/home");
+    },[]);
     const formik = useFormik({
         initialValues: {
             name: '',
@@ -40,7 +45,7 @@ const CreateGroup = () => {
             }).catch(err => errorHandler(err));
         }
     });
-    return (<div className="auth-wrapper">
+    return (user && user.id && <div className="auth-wrapper">
         <div className="auth-inner">
             <CloseButton onClick={() => history.push("/home")} />
             <h3>Create group</h3>
@@ -62,7 +67,7 @@ const CreateGroup = () => {
                 add volunteers to your group</Button>
             <Button variant="outline-primary" block hidden={!isCreate} onClick={() => history.push(`/editSchedule/${group.id}`)}>
                 edit schedule to your group</Button>
-        </div></div >
+        </div></div>
     )
 }
 
