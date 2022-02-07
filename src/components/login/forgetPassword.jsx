@@ -51,7 +51,7 @@ const ForgetPassword = () => {
                                 onChange={e => setEmail(e.target.value)} value={email} />
                         </div>
                         <br />   <div className="d-grid gap-2">
-                            <Button variant="outline-primary" block type="submit">Submit</Button>
+                            <Button variant="outline-primary"  type="submit">Submit</Button>
                         </div>
                     </div>
                 </form>

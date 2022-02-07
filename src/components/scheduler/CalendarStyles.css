@@ -9,3 +9,15 @@
 .my-cell {
     background-color: rgb(98, 185, 207) !important;
 }
+.buttom-quick-popup{
+    display: flex;
+    justify-content: space-between;
+    padding-top: 0.3rem;
+    padding-left: 1.8rem;
+}
+
+.toast-container{
+    z-index: 1;
+    margin-top: 3rem;
+    position: fixed !important; 
+}

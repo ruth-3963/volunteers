@@ -16,7 +16,8 @@ import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css'
 
 const AddVolunteer = () => {
 
-    const [volunteers, setVolunteers] = useState(new Array(10).fill(<Form.Control key="1" type="email" placeholder="Enter email" />));
+    const [volunteers, setVolunteers] = useState(Array.from({length: 10}, 
+        (_, i) => <Form.Control key={i} type="email" placeholder="Enter email" />));
     const formRef = useRef();
     const { group } = useContext(GroupContext);
     const { user } = useContext(UserContext);
@@ -95,14 +96,12 @@ const AddVolunteer = () => {
                     </Toast>
                 </ToastContainer>
                 <h3 >Add Volunteers
-                    <Tooltip title="Add" aria-label="add">
-                        <AddCircle style={{ float: "right" }} />
-                    </Tooltip></h3></div>
+                    </h3></div>
             <Form ref={formRef} onSubmit={(e) => handleSubmit(e)}>
                 <div className="mb-3">
                     {volunteers.map((element, index) => element)}
                 </div>
-                <Button type="submit" block >Add all and send email</Button>
+                <div className="d-grid gap-2"><Button type="submit"  >Add all and send email</Button></div>
             </Form>
         </div>
     </div>

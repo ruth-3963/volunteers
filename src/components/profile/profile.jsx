@@ -219,9 +219,9 @@ export const Profile = () => {
                                 </div>
 
                                 <div className="mt-3 text-center" id="buttons">
-                                    <Button block hidden={!isInEdit} disabled={formik.values.confirmPassword != formik.values.password}
+                                    <Button  hidden={!isInEdit} disabled={formik.values.confirmPassword != formik.values.password}
                                         type="submit" className="btn btn-primary profile-button" >Save Profile</Button>
-                                    <Button block hidden={!isInEdit} onClick={cancel} className="btn btn-primary profile-button" >Cancel</Button>
+                                    <Button  hidden={!isInEdit} onClick={cancel} className="btn btn-primary profile-button" >Cancel</Button>
                                 </div>
                             </form>
                         </div>
@@ -230,7 +230,7 @@ export const Profile = () => {
                         <div className="p-3 py-5">
                             <div className="d-flex justify-content-between align-items-center experience">
                                 <span>Groups</span>
-                                <Button variant='outline-primary'>create group</Button>
+                                <Button variant='outline-primary' onClick={() => history.push('/createGroup')}>create group</Button>
                             </div><br />
 
                             <Accordion defaultActiveKey="0">

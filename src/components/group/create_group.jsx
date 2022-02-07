@@ -60,13 +60,17 @@ const CreateGroup = () => {
                     <Form.Control as="textarea" rows={3} id="description" name="description"
                         onChange={formik.handleChange} value={formik.values.description} disabled={isCreate} />
                 </Form.Group>
-                <Button type="submit" variant="primary" block hidden={isCreate}>Submit</Button>
+                <div className="d-grid gap-2">
+                <Button type="submit" variant="primary"  hidden={isCreate}>Submit</Button>
+                </div>
             </Form>
-            <Button variant="outline-primary" block hidden={!isCreate}
+            <div className="d-grid gap-2">
+            <Button variant="outline-primary"  hidden={!isCreate}
                 onClick={() => history.push(`/addVolunteers/${group.id}`)}>
                 add volunteers to your group</Button>
-            <Button variant="outline-primary" block hidden={!isCreate} onClick={() => history.push(`/editSchedule/${group.id}`)}>
+            <Button variant="outline-primary"  hidden={!isCreate} onClick={() => history.push(`/editSchedule/${group.id}`)}>
                 edit schedule to your group</Button>
+                </div>
         </div></div>
     )
 }

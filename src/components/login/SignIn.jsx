@@ -159,7 +159,9 @@ const SignIn = (props) => {
                             onChange={formik.handleChange} value={formik.values.password} disabled={props.isLogin} />
                     </div>
                     {!props.isLogin ? <><br /><div className="form-group">
-                        <Button type="submit" variant="outline-primary" block>Continue...</Button>
+                    <div className="d-grid gap-2">
+                        <Button type="submit" variant="outline-primary">Continue...</Button>
+                        </div>
                     </div></> : ""
                     }
                     {props.isLogin ?
@@ -172,7 +174,10 @@ const SignIn = (props) => {
                                 )}
                                 <option key={listOfGroups ? listOfGroups.length : 0}>create new group</option>
                             </Form.Control>
-                        </Form.Group><br /> <Button variant="primary" block onClick={() => submitAllValue()}>Submit</Button></> : ""}                </form>
+                        </Form.Group><br /> 
+                        <div className="d-grid gap-2">
+                            <Button variant="primary"  onClick={() => submitAllValue()}>Submit</Button>
+                            </div></> : ""}                </form>
 
             </div><br />
             <div className="auth-inner">

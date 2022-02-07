@@ -3,7 +3,7 @@ import useStateWithCallback from "use-state-with-callback";
 import { useParams } from 'react-router';
 import axios from "axios";
 import { serverURL } from "../../config/config";
-import {Toast , Dropdown}  from 'react-bootstrap'
+import { Toast } from 'react-bootstrap'
 import ToastContainer from 'react-bootstrap/ToastContainer'
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import '../../App.css'
@@ -21,10 +21,11 @@ import "../../../node_modules/@syncfusion/ej2-react-schedule/styles/material.css
 import { ScheduleComponent, Day, Week, WorkWeek, Month, Inject, ViewsDirective, ViewDirective, ResourcesDirective, ResourceDirective, popupOpen } from '@syncfusion/ej2-react-schedule';
 import { useHistory } from "react-router-dom"
 import { useContext } from 'react';
-import { GroupContext } from "../../App"
+import { GroupContext, UserContext } from "../../App"
 import ChooseDate from './chooseDate';
 import { useErrorHandler } from 'react-error-boundary';
 import { L10n } from '@syncfusion/ej2-base';
+
 L10n.load({
   'en-US': {
     'schedule': {
@@ -41,8 +42,10 @@ const EditScheduler2 = () => {
   const [updateEvents, setUpdateEvents] = useState([]);
   const [deletedEvents, setDeletedEvents] = useState([]);
   const [ownerData, setOwnerData] = useState([]);
+  const [dynamicOwnerData, setDynamicUserData] = useState([])
   const [showToast, setShowToast] = useState(false);
   const { group, setGroup } = useContext(GroupContext);
+  const [addFlag ,setAddFlag] = useState(false);
   const [showDateAlert, setShowDateAlert] = useState(false);
   const handleError = useErrorHandler();
   const [rangeDates, setRangeDates] = useStateWithCallback([], value => {
@@ -72,7 +75,9 @@ const EditScheduler2 = () => {
           groupId: id,
         }
       });
-      setOwnerData(result.data.filter(od => !od.IsDeleted));
+      const newOwnerData = result.data.filter(od => !od.IsDeleted);
+      setOwnerData(newOwnerData);
+      setDynamicUserData(newOwnerData)
     } catch (err) {
       handleError(err)
     }
@@ -84,16 +89,26 @@ const EditScheduler2 = () => {
       let updateNewEvents = [];
       setNewEvents(currentState => { // Do not change the state by getting the updated state
         updateNewEvents = [...currentState];
-         return currentState;
+        return currentState;
       })
-      await axios.post(serverURL + "api/Event", { events: updateNewEvents, group: group });
-      const newUpdate = updateEvents.map(({ Id, OwnerId, EndTimezone, IsAllDay, RecurrenceRule, StartTimezone, ...allProp }) => allProp);
+      let updateUpdateEvents = [];
+      setUpdateEvents(currentState => { // Do not change the state by getting the updated state
+        updateUpdateEvents = [...currentState];
+        return currentState;
+      })
+      let updateDeleteEvents = [];
+      setDeletedEvents(currentState => { // Do not change the state by getting the updated state
+        updateDeleteEvents = [...currentState];
+        return currentState;
+      })
+      await axios.post(`${serverURL}SaveEvents/${group.id}`, updateNewEvents);
+      const newUpdate = updateUpdateEvents.map(({ Id, EndTimezone, IsAllDay, RecurrenceRule, StartTimezone, ...allProp }) => allProp);
       await axios.put(serverURL + "UpdateEvents/", newUpdate);
-      const newDel = deletedEvents.map(({ Id, OwnerId, ...allProp }) => allProp);
+      const newDel = updateDeleteEvents.map(({ Id, ...allProp }) => allProp);
       await axios.delete(serverURL + "api/Event", { data: newDel }, { "Authorization": "***" });
       const result = await axios.get(serverURL + "api/Event", { params: { id: group.id } });
-      if(buttonId != "save"){
-        axios.post(`${serverURL}api/Event/specialSave/${buttonId}`,group);
+      if (buttonId != "save") {
+        axios.post(`${serverURL}api/Event/specialSave/${buttonId}`, group);
       }
       setEvents(result.data);
       setShowToast(true);
@@ -162,13 +177,12 @@ const EditScheduler2 = () => {
       );
     }
   }
-  
   const CalcEvents = async (eventsToCalc) => {
     if (eventsToCalc && eventsToCalc.length) {
       try {
-        const result = await axios.post(serverURL + "calcEvents", {
-          events: eventsToCalc
-        })
+        const result = await axios.post(`${serverURL}calcEvents/${group.id}`,
+          events
+        )
         setEvents(result.data);
       }
       catch (err) {
@@ -182,6 +196,42 @@ const EditScheduler2 = () => {
     setRangeDates([]);
   }
 
+  const open = (e) => {
+    if(addFlag){
+      e.data.flag = true;
+      setAddFlag(false);
+    }
+    if (e.type === 'Editor' && e.data && !e.data.flag) {
+      let newDynamicData = [];
+      if (e.data.eventToUserDTO) {
+        const usersToThisEvent = e.data.eventToUserDTO.map(etu => etu.userId)
+        newDynamicData = ownerData.map(d => {
+
+          if (usersToThisEvent.length && usersToThisEvent.includes(d.Id)) {
+            return { ...d, OwnerText: `<b>${d.OwnerText}(allowed)</b>` }
+          }
+          return { ...d, OwnerText: `${d.OwnerText} (not allowed)` }
+
+        });
+      }
+      else {
+        newDynamicData = ownerData.map(a => { return { ...a } });
+      }
+      setDynamicUserData(newDynamicData);
+      e.cancel = true;
+      e.data.flag = true;
+      setTimeout(()=>{
+        if(e.duration){
+          setAddFlag(true);
+          calendar.current.openEditor(e.data, 'Add',true);
+        }
+        else{
+          calendar.current.openEditor(e.data, 'Save');
+        }
+      },50)
+    }
+  }
+
   return (<>
     <ChooseDate
       setShowDateAlert={(val) => setShowDateAlert(val)}
@@ -191,7 +241,7 @@ const EditScheduler2 = () => {
     />
     <ToastContainer style={{ position: 'relative' }} className="p-3" position="top-end">
       <Toast onClose={() => setShowToast(false)} show={showToast}
-      // delay={3000} autohide
+        delay={3000} autohide
       >
         <Toast.Header>
           <strong className="me-auto">Success</strong>
@@ -204,6 +254,7 @@ const EditScheduler2 = () => {
       actionBegin={(args) => onActionBegin(args)}
       actionComplete={(args) => onActionComplete(args)}
       width='100%' height='100%'
+      popupOpen={open}
       eventSettings={{
         dataSource: events,
         fields: {
@@ -212,9 +263,10 @@ const EditScheduler2 = () => {
         }
       }} >
       <ResourcesDirective>
-        <ResourceDirective field='OwnerId' title='Volunteer'
-          dataSource={ownerData}
-          textField="OwnerText" idField='Id' colorField='OwnerColor'>
+        <ResourceDirective field='OwnerId' title='Volunteer' cssClassField='CssClass'
+          dataSource={dynamicOwnerData}
+          textField="OwnerText" idField='Id' colorField='OwnerColor'
+        >
         </ResourceDirective>
       </ResourcesDirective>
       <Inject services={[Day, Week, WorkWeek, Month]} />

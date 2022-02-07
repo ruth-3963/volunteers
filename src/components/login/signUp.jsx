@@ -157,7 +157,9 @@ const SignUp = ({ location }) => {
                         ) : ""}
                         <option key={listOfGroups ? listOfGroups.length : 0}>create new group</option>
                     </select>
-                    <Button variant="primary" block onClick={() => submitAllValue()}>Submit</Button>
+                    <div className="d-grid gap-2">
+                    <Button variant="primary"  onClick={() => submitAllValue()}>Submit</Button>
+                    </div>
                 </Modal.Footer>
             </Modal>
         </div>

@@ -18,6 +18,9 @@ const ChooseGroup = (props) => {
                 )}
                 <option key={props.listOfGroups ? props.listOfGroups.length : 0}>create new group</option>
             </Form.Control>
-        </Form.Group><br /> <Button variant="primary" block onClick={() => props.submitAllValue()}>Submit</Button></>
+        </Form.Group><br />
+        <div className="d-grid gap-2">
+             <Button variant="primary"  onClick={() => props.submitAllValue()}>Submit</Button>
+             </div></>
     )}
 export default ChooseGroup;

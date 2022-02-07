@@ -112,7 +112,7 @@ export const ResetPassword = () => {
                             style={confirmPassword === password && password ? { borderColor: "green" } : { borderColor: "red" }} />
                     </Form.Group>
                     <div className="d-grid gap-2">
-                        <Button variant="outline-primary" block type="submit" disabled={updated}>Update</Button>
+                        <Button variant="outline-primary" type="submit" disabled={updated}>Update</Button>
                     </div>
                 </Form><br/>
                 {updated && (
