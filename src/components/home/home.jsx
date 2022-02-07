@@ -1,5 +1,5 @@
 import React from "react";
-import {Carousel } from "react-bootstrap";
+import { Carousel } from "react-bootstrap";
 import './home.css'
 import { useState } from "react";
 import { useEffect } from "react";
@@ -19,13 +19,13 @@ export const Home = () => {
         <div id="container">
             <Carousel variant="dark">
                 <Carousel.Item>
-                    <img src= '/asset/img/people-holding-rubber-heart.jpg' />
+                    <img src='/asset/img/people-holding-rubber-heart.jpg' />
                 </Carousel.Item>
                 <Carousel.Item >
-                    <img src= '/asset/img/5257.jpg' />
+                    <img src='/asset/img/5257.jpg' />
                 </Carousel.Item>
                 <Carousel.Item>
-                    <img src= '/asset/img/child-holding-red-rubber-heart.jpg' />
+                    <img src='/asset/img/child-holding-red-rubber-heart.jpg' />
                 </Carousel.Item>
             </Carousel>
             <div id="bottomDiv">

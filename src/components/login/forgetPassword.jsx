@@ -4,7 +4,7 @@ import './login.css';
 import { CloseButton, Button } from 'react-bootstrap'
 import { Link, useHistory, useLocation } from "react-router-dom";
 import axios from "axios";
-import {serverURL} from "../../config/config";
+import { serverURL } from "../../config/config";
 
 const ForgetPassword = () => {
     const [email, setEmail] = useState("");
@@ -51,7 +51,7 @@ const ForgetPassword = () => {
                                 onChange={e => setEmail(e.target.value)} value={email} />
                         </div>
                         <br />   <div className="d-grid gap-2">
-                            <Button variant="outline-primary"  type="submit">Submit</Button>
+                            <Button variant="outline-primary" type="submit">Submit</Button>
                         </div>
                     </div>
                 </form>

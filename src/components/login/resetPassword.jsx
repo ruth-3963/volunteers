@@ -1,9 +1,9 @@
 import React, { useState } from "react"
 import { Link, useHistory, useLocation, useParams } from "react-router-dom";
 import TextField from '@material-ui/core/TextField';
-import { Form, Button ,CloseButton} from 'react-bootstrap';
+import { Form, Button, CloseButton } from 'react-bootstrap';
 import { useEffect } from "react";
-import {serverURL} from "../../config/config";
+import { serverURL } from "../../config/config";
 import axios from "axios";
 import { useErrorHandler } from "react-error-boundary";
 import { useContext } from "react";
@@ -11,7 +11,7 @@ import { UserContext } from "../../App";
 
 export const ResetPassword = () => {
 
-    const {setUser} = useContext(UserContext);
+    const { setUser } = useContext(UserContext);
     const { token } = useParams();
     const [userToUpdate, setUserToUpdate] = useState('');
     const [password, setPassword] = useState('');
@@ -36,7 +36,7 @@ export const ResetPassword = () => {
                 setUpdated(true);
                 setError(false);
                 userToUpdate.password = password;
-                localStorage.setItem("user",JSON.stringify(userToUpdate));
+                localStorage.setItem("user", JSON.stringify(userToUpdate));
                 setUser(userToUpdate);
             }
             else {
@@ -76,10 +76,10 @@ export const ResetPassword = () => {
         return (
             <div className="auth-wrapper">
                 <div className="auth-inner">
-                <CloseButton onClick={() => history.push("/home")}/>
+                    <CloseButton onClick={() => history.push("/home")} />
                     <div style={loading}>
                         <h5><b>Problem resetting password. Please send another reset link.</b></h5>
-                        <Link to="/" style={{float:'right'}}>Go Home</Link>
+                        <Link to="/" style={{ float: 'right' }}>Go Home</Link>
                         <Link to="/forgetPassword" >forgetPassword</Link>
                     </div>
                 </div>
@@ -114,16 +114,16 @@ export const ResetPassword = () => {
                     <div className="d-grid gap-2">
                         <Button variant="outline-primary" type="submit" disabled={updated}>Update</Button>
                     </div>
-                </Form><br/>
+                </Form><br />
                 {updated && (
                     <div>
-                        <h5 style={{textAlign:'center'}}>
+                        <h5 style={{ textAlign: 'center' }}>
                             Your password has been successfully reset, please try logging in
                             again.
                         </h5>
                         <Link to="/signin">Sign In</Link>
 
-                        <Link to="/" style={{float:"right"}}>Go Home</Link>
+                        <Link to="/" style={{ float: "right" }}>Go Home</Link>
 
                     </div>
                 )}

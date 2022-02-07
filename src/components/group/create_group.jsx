@@ -8,7 +8,7 @@ import Form from 'react-bootstrap/Form';
 import { useErrorHandler } from 'react-error-boundary';
 import { useHistory, useLocation } from 'react-router-dom';
 import { GroupContext, UserContext, userToGroupContext } from '../../App';
-import {serverURL} from '../../config/config';
+import { serverURL } from '../../config/config';
 const CreateGroup = () => {
     const location = useLocation();
     const [isCreate, setIsCreate] = useState(false);
@@ -18,9 +18,9 @@ const CreateGroup = () => {
     const errorHandler = useErrorHandler();
     const history = useHistory();
     useEffect(() => {
-        if(!user && !user.id)
+        if (!user && !user.id)
             history.push("/home");
-    },[]);
+    }, []);
     const formik = useFormik({
         initialValues: {
             name: '',
@@ -61,16 +61,16 @@ const CreateGroup = () => {
                         onChange={formik.handleChange} value={formik.values.description} disabled={isCreate} />
                 </Form.Group>
                 <div className="d-grid gap-2">
-                <Button type="submit" variant="primary"  hidden={isCreate}>Submit</Button>
+                    <Button type="submit" variant="primary" hidden={isCreate}>Submit</Button>
                 </div>
             </Form>
             <div className="d-grid gap-2">
-            <Button variant="outline-primary"  hidden={!isCreate}
-                onClick={() => history.push(`/addVolunteers/${group.id}`)}>
-                add volunteers to your group</Button>
-            <Button variant="outline-primary"  hidden={!isCreate} onClick={() => history.push(`/editSchedule/${group.id}`)}>
-                edit schedule to your group</Button>
-                </div>
+                <Button variant="outline-primary" hidden={!isCreate}
+                    onClick={() => history.push(`/addVolunteers/${group.id}`)}>
+                    add volunteers to your group</Button>
+                <Button variant="outline-primary" hidden={!isCreate} onClick={() => history.push(`/editSchedule/${group.id}`)}>
+                    edit schedule to your group</Button>
+            </div>
         </div></div>
     )
 }

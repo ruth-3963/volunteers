@@ -81,7 +81,7 @@ const ChooseColor = (props) => {
                         value={value} />
                     {
                         allGroupUsersColor.length > 0
-                            ? allGroupUsersColor.filter(c => c.toLowerCase().startsWith(value)).map((element, index) => <Dropdown.Item eventKey={element} href="#">{element}
+                            ? allGroupUsersColor.filter(c => c.toLowerCase().startsWith(value)).map((element, index) => <Dropdown.Item eventKey={element} key={index} href="#">{element}
                                 <div style={{ width: "3vh", height: "3vh", backgroundColor: element, display: "inline-block", float: "right" }}></div>
                             </Dropdown.Item>) : ""}
                 </Dropdown.Menu>

@@ -99,9 +99,11 @@ const AddVolunteer = () => {
                     </h3></div>
             <Form ref={formRef} onSubmit={(e) => handleSubmit(e)}>
                 <div className="mb-3">
-                    {volunteers.map((element, index) => element)}
+                    {volunteers.map((element) => element)}
                 </div>
-                <div className="d-grid gap-2"><Button type="submit"  >Add all and send email</Button></div>
+                <div className="d-grid gap-2">
+                    <Button type="submit"  >Add all and send email</Button>
+                    </div>
             </Form>
         </div>
     </div>

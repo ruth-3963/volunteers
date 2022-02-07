@@ -23,10 +23,10 @@ const Group = () => {
                         }
                 }).then(result => {
                         if (result.data && result.data.length) {
-                                let newUsers = result.data.map(e => ({ ...e.user, color: e.color,isDeleted:e.isDeleted })).filter(e => !e.isDeleted)
+                                let newUsers = result.data.map(e => ({ ...e.user, color: e.color, isDeleted: e.isDeleted })).filter(e => !e.isDeleted)
                                 newUsers.sort((a, b) => a.name ? (b.name ? checkString(a.name, b.name) : -1) : (b.name ? 1 : checkString(a.email, b.email)))
                                 setUsers(newUsers);
-                                let newOldUsers = result.data.map(e => ({ ...e.user, color: e.color,isDeleted:e.isDeleted })).filter(e => e.isDeleted);
+                                let newOldUsers = result.data.map(e => ({ ...e.user, color: e.color, isDeleted: e.isDeleted })).filter(e => e.isDeleted);
                                 newOldUsers.sort((a, b) => a.name ? (b.name ? checkString(a.name, b.name) : -1) : (b.name ? 1 : checkString(a.email, b.email)))
                                 setOldUsers(newOldUsers);
                                 setManager(result.data.find(d => d.user.id === group.id_manager)?.user);
@@ -62,22 +62,22 @@ const Group = () => {
                                                                 </Card.Text>
                                                         </Card.Body>
                                                 </Card>
-                                        )} 
-                                {oldUsers.length > 0 && <>
-                                        <Button variant='link' onClick={() => setShowOldUsers(!showOldUsers)}>{showOldUsers ?  "hide old users" : "show old users" }</Button>
-                                        {showOldUsers && oldUsers.map(u =>
-                                                <Card >
-                                                        <Card.Body>
-                                                                {u.name && <Card.Title >{u.name}</Card.Title>}
-                                                                <Card.Text >
-                                                                        <b>Email : </b><a href={`mailto:${u.email}`}>{u.email}</a>
-                                                                        {u.phone && <><br /><b>Phone : </b><span>{u.phone}</span></>}
-                                                                        {u.color && <><br /><b>Color : </b><div style={{ display: 'inline', backgroundColor: u.color }}>{u.color}</div></>}
-                                                                </Card.Text>
-                                                        </Card.Body>
-                                                </Card>
-                                        )} </>
-                                }</div>
+                                        )}
+                                        {oldUsers.length > 0 && <>
+                                                <Button variant='link' onClick={() => setShowOldUsers(!showOldUsers)}>{showOldUsers ? "hide old users" : "show old users"}</Button>
+                                                {showOldUsers && oldUsers.map(u =>
+                                                        <Card >
+                                                                <Card.Body>
+                                                                        {u.name && <Card.Title >{u.name}</Card.Title>}
+                                                                        <Card.Text >
+                                                                                <b>Email : </b><a href={`mailto:${u.email}`}>{u.email}</a>
+                                                                                {u.phone && <><br /><b>Phone : </b><span>{u.phone}</span></>}
+                                                                                {u.color && <><br /><b>Color : </b><div style={{ display: 'inline', backgroundColor: u.color }}>{u.color}</div></>}
+                                                                        </Card.Text>
+                                                                </Card.Body>
+                                                        </Card>
+                                                )} </>
+                                        }</div>
                         </div>}
         </div >)
 }

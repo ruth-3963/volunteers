@@ -1,13 +1,13 @@
 import React, { useContext } from "react";
 import logo from '../logo_min.jpg';
-import { Navbar, Container, NavDropdown, Nav } from 'react-bootstrap'
-import { Link, useHistory, useLocation } from 'react-router-dom';
+import { Navbar, Container , Nav } from 'react-bootstrap'
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from "react-bootstrap";
 import '../index.css'
-import { UserContext, userToGroupContext, GroupContext } from "../App";
+import { userToGroupContext, GroupContext } from "../App";
 const TopBar = (props) => {
-    const { userToGroup, setUserToGroup } = useContext(userToGroupContext);
-    const {group} = useContext(GroupContext);
+    const { userToGroup } = useContext(userToGroupContext);
+    const { group } = useContext(GroupContext);
     const location = useLocation();
     const checkCurrentLocation = (link) => {
         return location.pathname.includes(link);

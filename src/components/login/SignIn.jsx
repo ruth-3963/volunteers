@@ -1,4 +1,4 @@
-import { Link, useHistory, useLocation, useParams  } from 'react-router-dom';
+import { Link, useHistory, useLocation, useParams } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import CloseButton from 'react-bootstrap/CloseButton'
 import Form from 'react-bootstrap/Form';
@@ -6,13 +6,13 @@ import { useFormik } from 'formik';
 import { useErrorHandler } from 'react-error-boundary';
 import axios from 'axios';
 import React, { useContext, useCallback, useEffect, useRef, useState } from 'react';
-import {serverURL} from '../../config/config';
+import { serverURL } from '../../config/config';
 import Modal from "react-bootstrap/Modal";
 import { GroupContext, UserContext, userToGroupContext } from '../../App';
 import './login.css';
 import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css'
 const SignIn = (props) => {
-    const email =  new URLSearchParams(props.location.search).get("email")?.replace("/", "");;
+    const email = new URLSearchParams(props.location.search).get("email")?.replace("/", "");;
     const history = useHistory();
     const location = useLocation();
     const handleError = useErrorHandler();
@@ -27,7 +27,7 @@ const SignIn = (props) => {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            email: email ? email: (user && user.email ? user.email :''),
+            email: email ? email : (user && user.email ? user.email : ''),
             password: '',
             group: '',
             emailValid: ''
@@ -74,8 +74,7 @@ const SignIn = (props) => {
         },
     });
     useEffect(async () => {
-        if ( props.isLogin && user)
-            {
+        if (props.isLogin && user) {
             try {
                 const groups = await axios.get(serverURL + "GetByManager", {
                     params: {
@@ -91,7 +90,7 @@ const SignIn = (props) => {
         }
 
     }, []);
-  
+
     const submitAllValue = async () => {
         const formikGroup = formik.values.group;
         if (formikGroup === "create new group" || !listOfGroups.length) {
@@ -121,7 +120,7 @@ const SignIn = (props) => {
                     if (resultUsersToGroups.data.is_manager) {
                         handleShow();
                     }
-                    else{
+                    else {
                         alert("the manager of this group nt yet declare events");
                         history.push("/home");
                     }
@@ -130,7 +129,7 @@ const SignIn = (props) => {
                     if (!resultUsersToGroups.data.color) {
                         history.push({ pathname: "/chooseEvents/" + currGroup.id });
                     }
-                    else if(resultGroup.data.events) {
+                    else if (resultGroup.data.events) {
                         history.push("/schedule/" + currGroup.id);
                     }
                 }
@@ -159,8 +158,8 @@ const SignIn = (props) => {
                             onChange={formik.handleChange} value={formik.values.password} disabled={props.isLogin} />
                     </div>
                     {!props.isLogin ? <><br /><div className="form-group">
-                    <div className="d-grid gap-2">
-                        <Button type="submit" variant="outline-primary">Continue...</Button>
+                        <div className="d-grid gap-2">
+                            <Button type="submit" variant="outline-primary">Continue...</Button>
                         </div>
                     </div></> : ""
                     }
@@ -174,10 +173,11 @@ const SignIn = (props) => {
                                 )}
                                 <option key={listOfGroups ? listOfGroups.length : 0}>create new group</option>
                             </Form.Control>
-                        </Form.Group><br /> 
-                        <div className="d-grid gap-2">
-                            <Button variant="primary"  onClick={() => submitAllValue()}>Submit</Button>
-                            </div></> : ""}                </form>
+                        </Form.Group><br />
+                            <div className="d-grid gap-2">
+                                <Button variant="primary" onClick={() => submitAllValue()}>Submit</Button>
+                            </div></> : ""}
+                </form>
 
             </div><br />
             <div className="auth-inner">
