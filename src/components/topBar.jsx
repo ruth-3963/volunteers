@@ -44,8 +44,11 @@ const TopBar = (props) => {
                                 href={`/addVolunteers`}>Add volunteers</Nav.Link><span> </span> </>
                         }
                         {userToGroup &&  
-                         <Nav.Link className={checkCurrentLocation('/schedule') && 'bgColorToCurrentLink'}
-                                href={`/schedule/${userToGroup.group_id}`}>Schedule</Nav.Link>}
+                         <><Nav.Link className={checkCurrentLocation('/schedule') && 'bgColorToCurrentLink'}
+                                href={`/schedule/${userToGroup.group_id}`}>Schedule</Nav.Link>
+                                <Nav.Link className={checkCurrentLocation('/chooseEvents') && 'bgColorToCurrentLink'}
+                                href={`/chooseEvents/${userToGroup.group_id}`}>Choose Shifts</Nav.Link>
+                               </> }
 
                     </Nav>
                 </Navbar.Collapse>

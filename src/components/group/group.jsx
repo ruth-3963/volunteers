@@ -6,6 +6,8 @@ import { useLocation } from 'react-router-dom';
 import { GroupContext } from '../../App';
 import { serverURL } from '../../config/config';
 import { Button, Card } from "react-bootstrap";
+import { GetColorName } from 'hex-color-to-color-name';
+
 import './group.css'
 const Group = () => {
         const { group, setGroup } = useContext(GroupContext);
@@ -56,7 +58,7 @@ const Group = () => {
                                                                 <Card.Text >
                                                                         <b>Email : </b><a href={`mailto:${u.email}`}>{u.email}</a>
                                                                         {u.phone && <><br /><b>Phone : </b><span>{u.phone}</span></>}
-                                                                        {u.color && <><br /><b>Color : </b><div style={{ display: 'inline', backgroundColor: u.color }}>{u.color}</div></>}
+                                                                        {u.color && <><br /><b>Color : </b><div style={{ display: 'inline', backgroundColor: u.color }}>{GetColorName(u.color)}</div></>}
                                                                 </Card.Text>
                                                         </Card.Body>
                                                 </Card>

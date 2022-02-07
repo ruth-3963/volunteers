@@ -90,7 +90,7 @@ const SignUp = ({ location }) => {
                 setGroup(result.data);
                 localStorage.setItem("group", JSON.stringify(result.data));
                 if (result.data.events) {
-                    setEvents(JSON.parse(result.data.events));
+                    setEvents(result.data.events);
                     history.push({ pathname: `/schedule${group.id}` });
                 }
                 else {

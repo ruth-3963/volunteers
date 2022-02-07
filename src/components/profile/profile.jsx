@@ -15,6 +15,8 @@ import { serverURL } from '../../config/config';
 import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import { SetManagerModal } from '../modals/setManagerModal';
 import { useHistory } from 'react-router-dom';
+import { GetColorName } from 'hex-color-to-color-name';
+
 
 export const Profile = () => {
     const { user, setUser } = useContext(UserContext);
@@ -240,7 +242,7 @@ export const Profile = () => {
                                         <p>
                                             {item.mName ? <><span><strong>Manager : </strong>{item.mName}</span> <br /></> : ""}
                                             <strong>Manager email : </strong>{item.mEmail}
-                                            {item.color ? <><br /><strong>color : </strong><span style={{ backgroundColor: item.color }}>{item.color}</span> </> : ""}
+                                            {item.color ? <><br /><strong>color : </strong><span style={{ backgroundColor: item.color}}>{GetColorName(item.color)}</span> </> : ""}
                                         </p>
                                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                                             <Button variant="outline-primary" onClick={() => changeColor(item)}>change color</Button>

@@ -9,6 +9,8 @@ import {serverURL} from '../../config/config'
 import { useEffect, useContext } from 'react';
 import { GroupContext, UserContext } from '../../App.js'
 import { useErrorHandler } from 'react-error-boundary';
+import convertCssColorNameToHex from 'convert-css-color-name-to-hex';
+
 const ChooseColor = (props) => {
     const errorHandler = useErrorHandler();
     const { group } = useContext(GroupContext);
@@ -39,7 +41,9 @@ const ChooseColor = (props) => {
         if (props.color) {
             try {
                 const result = await axios.put(serverURL + "api/usersToGroups", {
-                    user_id: user.id, group_id: props.group.id, color: props.color
+                    user_id: user.id, 
+                    group_id: props.group.id,
+                     color: convertCssColorNameToHex(props.color)
                 });
                 if (result.data) {
                     if (group.id === props.group.id)

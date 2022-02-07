@@ -162,7 +162,7 @@ const EditScheduler2 = () => {
         {
           align: 'Center',
           cssClass: 'e-schedule-user-icon',
-          template: `<Button class="btn btn-link">Calc events</Button>`,
+          template: `<Button class="btn btn-link">Calc shifts</Button>`,
           click: () => setShowDateAlert(true)
         },
         {
