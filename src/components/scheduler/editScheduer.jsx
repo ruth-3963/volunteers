@@ -104,9 +104,9 @@ const EditScheduler2 = () => {
       await axios.post(`${serverURL}SaveEvents/${group.id}`, updateNewEvents);
       const newUpdate = updateUpdateEvents.map(({ Id, EndTimezone, IsAllDay, RecurrenceRule, StartTimezone, ...allProp }) => allProp);
       await axios.put(serverURL + "UpdateEvents/", newUpdate);
-      const newDel = updateDeleteEvents.map(({ Id, ...allProp }) => allProp);
-      await axios.delete(serverURL + "api/Event", { data: newDel }, { "Authorization": "***" });
-      const result = await axios.get(serverURL + "api/Event", { params: { id: group.id } });
+      const newDel = updateDeleteEvents.map(({ Id, EndTimezone, IsAllDay, RecurrenceRule, StartTimezone, ...allProp }) => allProp);
+      await axios.delete(serverURL + "deleteEvents/", {data:newDel});
+      const result = await axios.get(serverURL + "api/Event/" + group.id);
       if (buttonId != "save") {
         axios.post(`${serverURL}api/Event/specialSave/${buttonId}`, group);
       }
