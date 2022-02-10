@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useContext } from 'react';
 import axios from 'axios';
-import { ScheduleComponent, Day, Week, WorkWeek, Month, Agenda, Inject, popupClose, ResourcesDirective, ResourceDirective, } from '@syncfusion/ej2-react-schedule';
+import { ScheduleComponent, Day, Week, WorkWeek, Month, Agenda, Inject,ExcelExport, popupClose, ResourcesDirective, ResourceDirective, } from '@syncfusion/ej2-react-schedule';
 import { useParams } from "react-router-dom"
 import Button from 'react-bootstrap/esm/Button';
 import { GroupContext, UserContext, userToGroupContext } from '../../App';
@@ -54,11 +54,22 @@ const Calendar = (props) => {
     }, [group]);
 
     const onActionBegin = (args) => {
+        if (args.requestType === 'toolbarItemRendering') {
+            let exportItem = {
+                align: 'Right',
+                text: 'Excel Export', 
+                cssClass: 'e-excel-export', 
+                click:  onExportClick
+            };
+            args.items.push(exportItem);
+        }
         if (args.changedRecords) {
             setEvents(calendar.current.eventsData);
         }
     }
-
+    const onExportClick = () => {
+        calendar.current.exportToExcel();
+    }
     const volunteer = async (data) => {
         const isConfirm = window.confirm("are yo sure that you want to volunteer in this shift?")
         if (!isConfirm) {
@@ -140,6 +151,8 @@ const Calendar = (props) => {
                 rel="stylesheet"
                 href="./CalendarStyles.css"
             />
+                <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+
             <ToastContainer className="p-3" position="top-end">
                 <Toast onClose={() => setShowToast(false)} show={showToast}
                 delay={5000} autohide
@@ -156,6 +169,7 @@ const Calendar = (props) => {
                 }}
                 actionBegin={onActionBegin}
                 popupOpen={open}
+                cssClass='excel-export' 
             >
                 <ResourcesDirective>
                     <ResourceDirective field='OwnerId' title='Volunteer' name='Owners'
@@ -163,7 +177,7 @@ const Calendar = (props) => {
                         textField="OwnerText" idField='Id' colorField='OwnerColor'>
                     </ResourceDirective>
                 </ResourcesDirective>
-                <Inject services={[Day, Week, WorkWeek, Month, Agenda]} />
+                <Inject services={[Day, Week, WorkWeek, Month, Agenda,ExcelExport]} />
             </ScheduleComponent>
         </div>);
 }

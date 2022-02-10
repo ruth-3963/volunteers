@@ -6,7 +6,7 @@ import Edit from '@material-ui/icons/Edit';
 import './profile.css'
 import { Button } from 'react-bootstrap';
 import Accordion from 'react-bootstrap/Accordion'
-import ChooseColor from '../group/chooseColor';
+import UserToGroupSettings from '../group/userToGroupSettings';
 import { useContext } from 'react';
 import { GroupContext, UserContext, userToGroupContext } from '../../App';
 import { Modal, FormControl, Alert } from 'react-bootstrap';
@@ -24,7 +24,7 @@ export const Profile = () => {
     const { userToGroup } = useContext(userToGroupContext)
     const [currGroup, setCurrGroup] = useState({});
     const [userGroups, setUserGroup] = useState([]);
-    const [showColorAlert, setShowColorAlert] = useState(false);
+    const [showSettingsAlert, setShowSettingsAlert] = useState(false);
     const [changeGroup, setChangeGroup] = useState(true);
     const [isInEdit, setIsInEdit] = useState(false);
     const [showValid, setShowValid] = useState(false);
@@ -34,7 +34,7 @@ export const Profile = () => {
     const [alertMessage, setAlertMessage] = useState('');
     const [password, setPassword] = useState("");
     const [validError, setValidError] = useState(false);
-    const [color, setColor] = useState('');
+    const [settings , setSettings] = useState({color:null,reminder:0});
     const history = useHistory();
     const errorHandler = useErrorHandler();
 
@@ -53,9 +53,7 @@ export const Profile = () => {
                     id: user.id,
                 }
             });
-            console.log(changeGroup);
             setUserGroup(groups.data);
-            console.log(changeGroup);
         }
         catch (err) {
             errorHandler(err)
@@ -117,8 +115,8 @@ export const Profile = () => {
 
     const changeColor = (currGroup) => {
         setCurrGroup(currGroup);
-        setColor(currGroup.color)
-        setShowColorAlert(true)
+        setSettings({color : currGroup.color,reminder:currGroup.reminder});
+        setShowSettingsAlert(true)
     }
     const deleteGroup = async(currGroup) => {
         if (currGroup.mEmail === user.email) {
@@ -183,10 +181,10 @@ export const Profile = () => {
             </Modal>
             {showManagerAlert && <SetManagerModal setShowManagerAlert={setShowManagerAlert}
                 group={currGroup} />}
-            {showColorAlert && <ChooseColor
-                showColorAlert={showColorAlert}
-                color={color} setColor={(val) => { setColor(val) }}
-                setShow={(val) => setShowColorAlert(val)}
+            {showSettingsAlert && <UserToGroupSettings
+                setShow={(val) => setShowSettingsAlert(val)}
+                settings = {settings}
+                setSettings = {setSettings}
                 group={currGroup}
                 changeGroup={changeGroup}
                 setChangeGroup={(val) => setChangeGroup(val)}
@@ -245,7 +243,7 @@ export const Profile = () => {
                                             {item.color ? <><br /><strong>color : </strong><span style={{ backgroundColor: item.color}}>{GetColorName(item.color)}</span> </> : ""}
                                         </p>
                                         <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                            <Button variant="outline-primary" onClick={() => changeColor(item)}>change color</Button>
+                                            <Button variant="outline-primary" onClick={() => changeColor(item)}>set settings</Button>
                                             <Button variant="outline-primary" onClick={() => deleteGroup(item)}>delete group</Button>
                                             {item.mEmail === user.email && <Button variant="outline-primary" onClick={() => setManager(item)}>set manager</Button>}
                                         </div>

@@ -27,6 +27,7 @@ import { PortableWifiOffRounded } from '@material-ui/icons';
 import ForgetPassword from './components/login/forgetPassword';
 import { ChangeManagerModal } from './components/modals/changeManagerModal';
 import { serverURL } from './config/config';
+import UserToGroupSettings from './components/group/userToGroupSettings';
 export const UserContext = React.createContext({ user: {}, setUser: () => { } });
 export const GroupContext = React.createContext({ group: {}, setGroup: () => { } })
 export const userToGroupContext = React.createContext({ userToGroup: {}, setUserToGroup: () => { } });
@@ -104,6 +105,7 @@ const App = () => {
                     return (user && user.id && match.params && match.params.id && match.params.id == user.id)
                       ? <Profile /> : history.goBack();
                   }} />
+                  <Route exect path="/userToGroupSettings" component={UserToGroupSettings}/>
                   <Route exect path="/signup/:email?/:id?" component={SignUp} />
                   <Route exect path="/home" component={Home} />
                   <Route exect path="/about" component={About} />

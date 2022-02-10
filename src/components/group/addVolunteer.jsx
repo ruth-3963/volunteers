@@ -31,7 +31,7 @@ const AddVolunteer = () => {
         e.preventDefault();
         const arr = Array.prototype.slice.call(e.target.children[0].children);
         const volunteers = [];
-        arr.map((chaild, index) => {
+        arr.map((chaild) => {
             if (chaild.value) {
                 const email = chaild.value;
                 volunteers.push(email);

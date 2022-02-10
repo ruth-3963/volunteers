@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import logo from '../logo_min.jpg';
+import logo from '../logo.png';
 import { Navbar, Container , Nav } from 'react-bootstrap'
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "react-bootstrap";
@@ -15,9 +15,9 @@ const TopBar = (props) => {
     return (
         <Navbar sticky="top" bg="light" expand="lg">
             <Container>
-                <Navbar.Brand >EveryToOne</Navbar.Brand>
-                <img src={logo} width="40" height="40" />
-
+                <Navbar.Brand style={{padding :'0px 15px'}}> <img src={logo} width='100vh'/>
+</Navbar.Brand>
+               
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="me-start">
