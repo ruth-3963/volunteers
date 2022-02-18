@@ -13,7 +13,7 @@ const TopBar = (props) => {
         return location.pathname.includes(link);
     }
     return (
-        <Navbar sticky="top" bg="light" expand="lg">
+        <Navbar fixed="top" sticky="top" bg="light" expand="lg">
             <Container>
                 <Navbar.Brand style={{padding :'0px 15px'}}> <img src={logo} width='100vh'/>
 </Navbar.Brand>

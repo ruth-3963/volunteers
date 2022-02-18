@@ -125,7 +125,7 @@ const Calendar = (props) => {
     const open = (e) => {
         const createButton = (textContent, func, data) => {
             let btn = document.createElement('button');
-            btn.setAttribute('class', 'btn btn-light');
+            btn.setAttribute('class', 'btn btn-secondary');
             btn.textContent = textContent;
             btn.onclick = () => func(data);
             return btn;

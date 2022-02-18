@@ -4,3 +4,6 @@
 .about{
     padding: 4rem 7rem;
 }
+.navbar{
+    position: sticky !important;
+}

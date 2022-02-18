@@ -48,21 +48,6 @@ const EditScheduler2 = () => {
   const [addFlag ,setAddFlag] = useState(false);
   const [showDateAlert, setShowDateAlert] = useState(false);
   const handleError = useErrorHandler();
-  const [rangeDates, setRangeDates] = useStateWithCallback([], value => {
-    if (value.length) {
-      const eventsToCalc = calendar.current.eventsData.
-        filter(e => e.StartTime > Date.parse(value[0]) && e.EndTime < Date.parse(value[1]));
-      setShowDateAlert(false);
-      CalcEvents(eventsToCalc);
-    }
-  });
-  const [isDisplayEvents, setIsDisplayEvents] = useStateWithCallback(false, value => {
-    if (value) {
-      const eventsToCalc = calendar.current.getCurrentViewEvents();
-      setShowDateAlert(false);
-      CalcEvents(eventsToCalc);
-    }
-  });
 
   useEffect(async () => {
     try {
@@ -180,6 +165,7 @@ const EditScheduler2 = () => {
   const CalcEvents = async (eventsToCalc) => {
     if (eventsToCalc && eventsToCalc.length) {
       try {
+        debugger;
         const result = await axios.post(`${serverURL}calcEvents/${group.id}`,
           events
         )
@@ -192,8 +178,6 @@ const EditScheduler2 = () => {
     else {
       alert("no events to calc")
     }
-    setIsDisplayEvents(false);
-    setRangeDates([]);
   }
 
   const open = (e) => {
@@ -208,7 +192,7 @@ const EditScheduler2 = () => {
         newDynamicData = ownerData.map(d => {
 
           if (usersToThisEvent.length && usersToThisEvent.includes(d.Id)) {
-            return { ...d, OwnerText: `<b>${d.OwnerText}(allowed)</b>` }
+            return { ...d, OwnerText: `${d.OwnerText}(allowed)` }
           }
           return { ...d, OwnerText: `${d.OwnerText} (not allowed)` }
 
@@ -246,7 +230,7 @@ const EditScheduler2 = () => {
         <Toast.Header>
           <strong className="me-auto">Success</strong>
         </Toast.Header>
-        <Toast.Body>המידע נשמר בהצלחה</Toast.Body>
+        <Toast.Body>The data saved succesfully</Toast.Body>
       </Toast>
     </ToastContainer>
     <ScheduleComponent

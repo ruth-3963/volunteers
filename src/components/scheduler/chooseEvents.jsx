@@ -3,9 +3,8 @@ import { useParams } from 'react-router';
 import axios from "axios";
 import { ScheduleComponent, Day, Week, WorkWeek, Month, Agenda, Inject, popupClose, ResourcesDirective, ResourceDirective, } from '@syncfusion/ej2-react-schedule';
 import { serverURL } from '../../config/config';
-import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { useContext } from 'react';
-import { Alert } from 'react-bootstrap';
+import { Alert ,Toast,ToastContainer} from 'react-bootstrap';
 import { GroupContext, UserContext, userToGroupContext } from '../../App';
 import { useErrorHandler } from 'react-error-boundary';
 import './CalendarStyles.css';
@@ -28,9 +27,10 @@ const ChooseEvents = (props) => {
   const [ownerData, setOwnerData] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [lastDate, setLastDate] = useState(null);
+  const [showToast, setShowToast] = useState(false);
   const { user } = useContext(UserContext);
   const { group } = useContext(GroupContext);
-  const { userToGroup, setUserToGroup } = useContext(userToGroupContext);
+  const { userToGroup } = useContext(userToGroupContext);
   const handleError = useErrorHandler();
   useEffect(() => {
     try {
@@ -67,7 +67,7 @@ const ChooseEvents = (props) => {
       userId: userId,
       groupId: group.id,
       events: eventToUser
-    }).catch(err => handleError(err));
+    }).then(res => setShowToast(true)).catch(err => handleError(err));
     console.log(calendar.current);
   }
   const onActionBegin = (args) => {
@@ -75,7 +75,7 @@ const ChooseEvents = (props) => {
       setEvents(calendar.current.eventsData);
     }
     if (args.requestType === 'toolbarItemRendering') {
-      if (userToGroup && userToGroup.is_manager) {
+     
         let userIconItem = {
           align: 'Center',
           text: 'save',
@@ -84,7 +84,7 @@ const ChooseEvents = (props) => {
           click: saveData
         };
         args.items.push(userIconItem);
-      }
+      
     }
   }
   const penPopUp = (args) => {
@@ -104,10 +104,20 @@ const ChooseEvents = (props) => {
     <Alert>
       <b>{lastDate ? `the last Date to choose is ${lastDate}` : `no events to choose`}</b>
     </Alert>
+    <ToastContainer style={{ position: 'relative' }} className="p-3" position="top-end">
+      <Toast onClose={() => setShowToast(false)} show={showToast}
+        delay={3000} autohide
+      >
+        <Toast.Header>
+          <strong className="me-auto">Success</strong>
+        </Toast.Header>
+        <Toast.Body>The data saved succesfully</Toast.Body>
+      </Toast>
+    </ToastContainer>
     <ScheduleComponent
       actionBegin={(args) => onActionBegin(args)}
       ref={c => calendar.current = c}
-      width='100%' height='550px'
+      width='100%' height='100%'
       eventSettings={{ dataSource: events }}
       popupOpen={(args) => penPopUp(args)}
       selectedDate={selectedDate ? selectedDate : new Date()}

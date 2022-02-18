@@ -86,13 +86,19 @@ const App = () => {
               forceUpdate();
             }}>
             {isLoading &&
-              <><TopBar isLogin={isLogin} signOut={() => signOut()}></TopBar>
-                {showChangeManager && <ChangeManagerModal setShowChangeManager={setShowChangeManager}
-                  group={groupToChangeManager} />}
+              <>
+
+                <TopBar isLogin={isLogin} signOut={() => signOut()}></TopBar>
+                <ChangeManagerModal setShow={setShowChangeManager}
+                        group={groupToChangeManager}
+                        show={showChangeManager} />
                 <Switch>
                   <Route exact path="/">
-                    {isLogin && group && group.id ? <Redirect to={`/schedule/${group.id}`} /> :
-                      <Redirect push to="/signin" />}
+                    <>
+                      {isLogin && group && group.id ? <Redirect to={`/schedule/${group.id}`} /> :
+                        <Redirect push to="/signin" />}
+                    </>
+
                   </Route>
 
                   <Route exect path="/signin/:email?/"
@@ -105,7 +111,7 @@ const App = () => {
                     return (user && user.id && match.params && match.params.id && match.params.id == user.id)
                       ? <Profile /> : history.goBack();
                   }} />
-                  <Route exect path="/userToGroupSettings" component={UserToGroupSettings}/>
+                  <Route exect path="/userToGroupSettings" component={UserToGroupSettings} />
                   <Route exect path="/signup/:email?/:id?" component={SignUp} />
                   <Route exect path="/home" component={Home} />
                   <Route exect path="/about" component={About} />

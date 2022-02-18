@@ -8,12 +8,11 @@ import { UserContext } from "../../App";
 import { serverURL } from "../../config/config";
 import '../login/login.css';
 
-export const ChangeManagerModal = ({group,setShowChangeManager}) => {
+export const ChangeManagerModal = ({group,show,setShow}) => {
     const [submited,setSubmited] = useState(false);
-    const [show,setShow] = useState(true);
     const {user} = useContext(UserContext);
     const handleError = useErrorHandler();
-    const handleClose = () => { setShow(false); };
+    const handleClose = () => {setShow(false)};
 
     const submit = async(isAgree) => {
         try{
@@ -25,21 +24,23 @@ export const ChangeManagerModal = ({group,setShowChangeManager}) => {
                }
             );
             await new Promise(r => setTimeout(r, 2000));
-            setShowChangeManager(false); 
+            debugger;
+            setShow(false); 
         }
         catch (err){
             handleError(err);
         }
     }
     return (
-        <Modal show={show} onHide={handleClose}>
+       group && <Modal   backdrop="static" style={{overlay: {zIndex: 100}}}
+       keyboard={false}   show={show} onHide={handleClose} >
             <Modal.Header closeButton>
                 <Modal.Title>Set you to manager</Modal.Title>
             </Modal.Header>
             <Modal.Body>{group.mName} ({group.mEmail}) want that you manage {group.name} group</Modal.Body>
             <Modal.Footer >
-                <Button onClick={() => submit(true)}>I agree</Button>
-                <Button onClick={() => submit(false)} variant="secondary">I not aggree</Button>
+                <Button onClick={(e) => {e.preventdefault(); submit(true)}}>I agree</Button>
+                <Button onClick={(e) => {e.preventdefault(); submit(false)}} variant="secondary">I not aggree</Button>
                 {submited && <b>we submitted your answer</b>}
             </Modal.Footer>
         </Modal>
